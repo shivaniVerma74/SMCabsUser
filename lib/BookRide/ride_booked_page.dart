@@ -366,7 +366,7 @@ class _RideBookedPageState extends State<RideBookedPage> {
                 carType: widget.model.taxiType=="Bike"?"1":"2",
                 status1 :widget.model.acceptReject,
                 SOURCE_LOCATION: LatLng(double.parse(widget.model.latitude!),double.parse(widget.model.longitude!)),
-                DEST_LOCATION: LatLng(double.parse(widget.model.dropLatitude.toString()),double.parse(widget.model.dropLongitude.toString())),
+                // DEST_LOCATION: LatLng(double.parse(widget.model.dropLatitude.toString()),double.parse(widget.model.dropLongitude.toString())),
               ):Center(child: CircularProgressIndicator(),),
               Positioned(
                 top: 0,

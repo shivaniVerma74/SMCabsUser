@@ -39,20 +39,19 @@ class _FindingRidePageState extends State<FindingRidePage>
       ..repeat()
       ..addListener(() {
       });
-    _animation =
-        CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn);
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn);
     PushNotificationService pushNotificationService = new PushNotificationService(context: context, onResult: (result){
     //  if(mounted&&result=="yes")
       if(result=="accept"){
         getCurrentInfo();
       }
-
     });
     pushNotificationService.initialise();
  //   if(mounted)
    /* Future.delayed(Duration(seconds: 4),
         () => Navigator.pushNamed(context, PageRoutes.rideBookedPage));*/
   }
+
   bool loading = true;
   bool saveStatus = true;
   ApiBaseHelper apiBase = new ApiBaseHelper();
@@ -100,6 +99,7 @@ class _FindingRidePageState extends State<FindingRidePage>
       });
     }
   }
+
   @override
   void dispose() {
     _controller.dispose();

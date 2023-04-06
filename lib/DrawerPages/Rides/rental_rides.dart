@@ -91,6 +91,7 @@ class _RentalRidesState extends State<RentalRides> {
     getReason();
     getRides("1");
   }
+
   bool selected = true;
 
   List<String> filter = ["All", "Today", "Weekly", "Monthly"];
@@ -291,6 +292,7 @@ class _RentalRidesState extends State<RentalRides> {
                           child: Container(
                             decoration: boxDecoration(bgColor: Colors.white,radius: 10),
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
                                   height: 100,
@@ -352,6 +354,14 @@ class _RentalRidesState extends State<RentalRides> {
                                             textAlign: TextAlign.right,
                                             style: theme.textTheme.caption,
                                           ),
+                                          rideList[index].bookingType == "Rental Booking" ?
+                                          Text("OTP : ${rideList[index].bookingOtp.toString()}",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.blue,
+                                            fontSize: 14
+                                          ),)
+                                          : SizedBox.shrink(),
                                           Text(
                                                 "${rideList[index].bookingType}",
                                             textAlign: TextAlign.right,
@@ -362,6 +372,7 @@ class _RentalRidesState extends State<RentalRides> {
                                     ],
                                   ),
                                 ),
+
                                 ListTile(
                                   horizontalTitleGap: 0,
                                   leading: Icon(
