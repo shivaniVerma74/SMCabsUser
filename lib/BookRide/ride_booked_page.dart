@@ -41,6 +41,7 @@ class _RideBookedPageState extends State<RideBookedPage> {
   bool acceptStatus = false;
   List<ReasonModel> reasonList = [];
   bool change = false;
+
   getReason() async {
     await App.init();
     isNetwork = await isNetworkAvailable();
@@ -74,6 +75,7 @@ class _RideBookedPageState extends State<RideBookedPage> {
       setSnackbar(getTranslated(context, "NO_INTERNET")!, context);
     }
   }
+
   String totalTime = "0".toString();
   String distance = "0".toString();
   getTime1(lat1, lon1, lat2, lon2)async{
@@ -267,7 +269,8 @@ class _RideBookedPageState extends State<RideBookedPage> {
             boxHeight(20),
             text("${getTranslated(context, "SELECT_REASON")}",textColor: MyColorName.colorTextPrimary,fontSize: 12.sp,fontFamily: fontBold),
             boxHeight(20),
-            reasonList.length>0?Container(
+            reasonList.length>0?
+            Container(
               child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: reasonList.length,
@@ -286,7 +289,8 @@ class _RideBookedPageState extends State<RideBookedPage> {
                       ),
                     );
                   }),
-            ):SizedBox(),
+            ):
+            SizedBox(),
             boxHeight(20),
             Row(
               children: [
