@@ -466,6 +466,7 @@ class _ProfilePageState extends State<ProfilePage> {
           image =
               response['image_path'].toString() + data['user_image'].toString();
           imagePath = response['image_path'].toString();
+          isFirstUser = response['first_order'];
         });
 
       } else {

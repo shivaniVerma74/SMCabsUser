@@ -370,6 +370,7 @@ class _SearchLocationPageState extends State<SearchLocationPage> {
   }
 
   bool loading = true;
+  bool loadingRental = false;
   bool saveStatus = true;
   ApiBaseHelper apiBase = new ApiBaseHelper();
   bool isNetwork = false;
@@ -573,6 +574,7 @@ class _SearchLocationPageState extends State<SearchLocationPage> {
           email = data['email'];
           gender1 = data['gender'];
           dob = data['dob'];
+          isFirstUser = data['first_order'];
           password = data['new_password'];
           walletAmount = data['wallet_amount']!=null&&data['wallet_amount']!=""?double.parse(data['wallet_amount']):0;
           image =
@@ -1561,7 +1563,15 @@ class _SearchLocationPageState extends State<SearchLocationPage> {
                             radius: 10,
                             bgColor: Theme.of(context).primaryColor),
                         child: Center(
-                            child: text(getTranslated(context, "CONTINUE")!,
+                            child: currentIndex == 2 ?
+                                loadingRental ? CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                            : text(getTranslated(context, "CONTINUE")!,
+                                fontFamily: fontMedium,
+                                fontSize: 12.sp,
+                                textColor: Colors.white)
+                        : text(getTranslated(context, "CONTINUE")!,
                                 fontFamily: fontMedium,
                                 fontSize: 12.sp,
                                 textColor: Colors.white)),
@@ -1829,13 +1839,14 @@ class _SearchLocationPageState extends State<SearchLocationPage> {
                       ),
                       InkWell(
                         onTap: () {
+                          setState(() {
+                            loadingRental = true;
+                          });
                           Navigator.pop(context1);
                           // if(totalBal > 0){
                             addRides();
                           // }else{
-                            setState(() {
-                              saveStatus = true;
-                            });
+
                           //   setSnackbar("User not allowed! wallet balance is low", context);
                           // }
 
@@ -1846,8 +1857,10 @@ class _SearchLocationPageState extends State<SearchLocationPage> {
                           decoration: boxDecoration(
                               radius: 5,
                               bgColor: Theme.of(context).primaryColor),
-                          child: Center(
-                              child: text(getTranslated(context, "CONFIRM")!,
+                          child:
+                          Center(
+                              child:
+                              text(getTranslated(context, "CONFIRM")!,
                                   fontFamily: fontMedium,
                                   fontSize: 10.sp,
                                   isCentered: true,
@@ -1869,6 +1882,7 @@ class _SearchLocationPageState extends State<SearchLocationPage> {
     try {
       setState(() {
         saveStatus = false;
+        loadingRental = true;
       });
       Map params = {
         "user_id": curUserId,
@@ -1905,6 +1919,7 @@ class _SearchLocationPageState extends State<SearchLocationPage> {
           Uri.parse(baseUrl1 + "Payment/rental_booking_trip"), params);
       setState(() {
         saveStatus = true;
+        loadingRental = false;
       });
       if (response['status']) {
         Navigator.push(
@@ -1919,6 +1934,7 @@ class _SearchLocationPageState extends State<SearchLocationPage> {
       setSnackbar(getTranslated(context, "WRONG")!, context);
       setState(() {
         saveStatus = true;
+        loadingRental = false;
       });
     }
   }

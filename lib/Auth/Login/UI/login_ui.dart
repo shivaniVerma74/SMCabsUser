@@ -58,8 +58,10 @@ class _LoginUIState extends State<LoginUI> {
           child: Container(
             color: Color(0xff41dbde),
             height: MediaQuery.of(context).size.height,
-            child: choose == "pass"
-                ? Column(
+            child:
+            // choose == "pass"
+            //     ?
+            Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Spacer(flex: 2),
@@ -68,7 +70,7 @@ class _LoginUIState extends State<LoginUI> {
                   child: Text(
                       getTranslated(context,'ENTER_YOUR')! +
                           '\n' +
-                          getTranslated(context, "EMAIL_PASS")!,
+                          "Mobile Number and Password",
                       style: theme.textTheme.headline4!.copyWith(fontSize: 20)),
                 ),
                 Spacer(),
@@ -79,11 +81,17 @@ class _LoginUIState extends State<LoginUI> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Spacer(),
-                      chooseType(),
+                      // chooseType(),
+                      // EntryField(
+                      //   controller: emailCon,
+                      //   keyboardType: TextInputType.emailAddress,
+                      //   label: getTranslated(context,'EMAIL_ADD'),
+                      // ),
                       EntryField(
-                        controller: emailCon,
-                        keyboardType: TextInputType.emailAddress,
-                        label: getTranslated(context,'EMAIL_ADD'),
+                        maxLength: 10,
+                        keyboardType: TextInputType.phone,
+                        controller: _numberController,
+                        label: getTranslated(context,'ENTER_PHONE'),
                       ),
                       EntryField(
                         //  initialValue: name.toString(),
@@ -118,35 +126,68 @@ class _LoginUIState extends State<LoginUI> {
                         ],
                       ),
                       Spacer(flex: 1),
-                      InkWell(
-                        onTap: () async {
-                          if(validateEmail(emailCon.text, getTranslated(context, "VALID_EMAIL")!,getTranslated(context, "VALID_EMAIL")!)!=null){
-                            setSnackbar(validateEmail(emailCon.text, getTranslated(context, "VALID_EMAIL")!,getTranslated(context, "VALID_EMAIL")!).toString(), context);
-                            return;
-                          }
-                          if(passCon.text==""||passCon.text.length<8){
-                            setSnackbar(getTranslated(context, "ENTER_PASSWORD")!, context);
-                            return ;
-                          }
-                          setState(() {
-                            loading = true;
-                          });
-                          loginUser();
-                        },
-                        child: Container(
-                          width: 75.w,
-                          height: 6.h,
-                          decoration: boxDecoration(
-                              radius: 10,
-                              bgColor: Theme.of(context).primaryColor),
-                          child: Center(
-                              child: !loading
-                                  ?text(getTranslated(context, "CONTINUE")!,
-                                  fontFamily: fontMedium,
-                                  fontSize: 12.sp,
-                                  textColor: Colors.white):CircularProgressIndicator()),
-                        ),
-                      ),
+                     Padding(
+                       padding: const EdgeInsets.only(left: 12.0, right: 12),
+                       child: Row(
+                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                         children: [
+                           InkWell(
+                           onTap: () async {
+
+                             // if(validateEmail(emailCon.text, getTranslated(context, "VALID_EMAIL")!,getTranslated(context, "VALID_EMAIL")!)!=null){
+                             //   setSnackbar(validateEmail(emailCon.text, getTranslated(context, "VALID_EMAIL")!,getTranslated(context, "VALID_EMAIL")!).toString(), context);
+                             //   return;
+                             // }
+                             if (_numberController.text == "" || _numberController.text.length != 10) {
+                               setSnackbar("Please Enter Valid Mobile Number", context);
+                               return;}
+                             if(passCon.text==""||passCon.text.length<8){
+                               setSnackbar(getTranslated(context, "ENTER_PASSWORD")!, context);
+                               return ;
+                             }
+                             setState(() {
+                               loading = true;
+                             });
+                             loginUser();
+                           },
+                           child: Container(
+                             width: 50.w - 30,
+                             height: 6.h,
+                             decoration: boxDecoration(
+                                 radius: 10,
+                                 bgColor: Theme.of(context).primaryColor),
+                             child: Center(
+                                 child: !loading
+                                     ?text("LOGIN",
+                                     // getTranslated(context, "CONTINUE")!,
+                                     fontFamily: fontMedium,
+                                     fontSize: 12.sp,
+                                     textColor: Colors.white):CircularProgressIndicator()),
+                           ),
+                         ),
+                           InkWell(
+                             onTap: () async {
+                               navigateScreen(
+                                   context, RegistrationUI("","",""));
+                             },
+                             child: Container(
+                               width: 50.w - 30,
+                               height: 6.h,
+                               decoration: boxDecoration(
+                                   radius: 10,
+                                   bgColor: Theme.of(context).primaryColor),
+                               child: Center(
+                                   child: !loading
+                                       ?text("REGISTER",
+                                       // getTranslated(context, "CONTINUE")!,
+                                       fontFamily: fontMedium,
+                                       fontSize: 12.sp,
+                                       textColor: Colors.white):CircularProgressIndicator()),
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
                       Spacer(flex: 1),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -197,29 +238,29 @@ class _LoginUIState extends State<LoginUI> {
                         ),
                       ),
                       Spacer(flex: 1),
-                      InkWell(
-                        onTap: (){
-                          navigateScreen(
-                              context, RegistrationUI("","",""));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal:15.0,vertical: 5),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              text(getTranslated(context, "ACCOUNT")!,
-                                  fontFamily: fontMedium,
-                                  fontSize: 12.sp,
-                                  textColor: Colors.black),
-                              text(getTranslated(context, "REGISTER")!,
-                                  fontFamily: fontMedium,
-                                  fontSize: 12.sp,
-                                  under: true,
-                                  textColor: Colors.black),
-                            ],
-                          ),
-                        ),
-                      ),
+                      // InkWell(
+                      //   onTap: (){
+                      //     navigateScreen(
+                      //         context, RegistrationUI("","",""));
+                      //   },
+                      //   child: Padding(
+                      //     padding: const EdgeInsets.symmetric(horizontal:15.0,vertical: 5),
+                      //     child: Row(
+                      //       mainAxisAlignment: MainAxisAlignment.center,
+                      //       children: [
+                      //         text(getTranslated(context, "ACCOUNT")!,
+                      //             fontFamily: fontMedium,
+                      //             fontSize: 12.sp,
+                      //             textColor: Colors.black),
+                      //         text(getTranslated(context, "REGISTER")!,
+                      //             fontFamily: fontMedium,
+                      //             fontSize: 12.sp,
+                      //             under: true,
+                      //             textColor: Colors.black),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                       Spacer(flex: 1),
                 /*      !loading
                           ? CustomButton(
@@ -246,139 +287,139 @@ class _LoginUIState extends State<LoginUI> {
                 ),
               ],
             )
-                : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Spacer(flex: 2),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                      getTranslated(context,'ENTER_YOUR')! +
-                          '\n' +
-                          "Mobile Number",
-                      style: theme.textTheme.headline4!.copyWith(fontSize: 20)),
-                ),
-                Spacer(),
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  color: theme.backgroundColor,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Spacer(),
-                      chooseType(),
-                      EntryField(
-                        maxLength: 10,
-                        keyboardType: TextInputType.phone,
-                        controller: _numberController,
-                        label: getTranslated(context,'ENTER_PHONE'),
-                      ),
-                      Spacer(flex: 1),
-                      InkWell(
-                        onTap: () async {
-                            if (_numberController.text == "" ||
-                              _numberController.text.length != 10) {
-                            setSnackbar("Please Enter Valid Mobile Number", context);
-                            return;
-                              }
-                            setState(() {
-                              loading = true;
-                            });
-                            loginWithMobile();
-                        },
-                        child: Container(
-                          width: 75.w,
-                          height: 6.h,
-                          decoration: boxDecoration(
-                              radius: 10,
-                              bgColor: Theme.of(context).primaryColor),
-                          child: Center(
-                              child: !loading
-                                  ?text(getTranslated(context, "GET_OTP")!,
-                                  fontFamily: fontMedium,
-                                  fontSize: 12.sp,
-                                  textColor: Colors.white):CircularProgressIndicator()),
-                        ),
-                      ),
-                      Spacer(flex: 1),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          boxWidth(40),
-                          Expanded(child: Divider()),
-                          boxWidth(10),
-                          text(getTranslated(context, "OR")!,
-                              fontFamily: fontMedium,
-                              fontSize: 12.sp,
-                              textColor: Colors.black),
-                          boxWidth(10),
-                          Expanded(child: Divider()),
-                          boxWidth(40),
-                        ],
-                      ),
-                      Spacer(flex: 1),
-                      Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                loginFb();
-                              },
-                              child: Image.asset(
-                                "assets/fb.png",
-                                width: 8.h,
-                                height: 8.h,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 5.w,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                googleLogin();
-                              },
-                              child: Image.asset(
-                                "assets/google.png",
-                                width: 8.h,
-                                height: 8.h,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Spacer(flex: 1),
-                      InkWell(
-                        onTap: (){
-                          navigateScreen(
-                              context, RegistrationUI("","",""));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal:15.0,vertical: 5),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              text(getTranslated(context, "ACCOUNT")!,
-                                  fontFamily: fontMedium,
-                                  fontSize: 12.sp,
-                                  textColor: Colors.black),
-                              text(getTranslated(context, "REGISTER")!,
-                                  fontFamily: fontMedium,
-                                  fontSize: 12.sp,
-                                  under: true,
-                                  textColor: Colors.black),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Spacer(flex: 1),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            //     : Column(
+            //   crossAxisAlignment: CrossAxisAlignment.stretch,
+            //   children: [
+            //     Spacer(flex: 2),
+            //     Padding(
+            //       padding: EdgeInsets.symmetric(horizontal: 24),
+            //       child: Text(
+            //           getTranslated(context,'ENTER_YOUR')! +
+            //               '\n' +
+            //               "Mobile Number",
+            //           style: theme.textTheme.headline4!.copyWith(fontSize: 20)),
+            //     ),
+            //     Spacer(),
+            //     Container(
+            //       height: MediaQuery.of(context).size.height * 0.7,
+            //       color: theme.backgroundColor,
+            //       child: Column(
+            //         crossAxisAlignment: CrossAxisAlignment.center,
+            //         children: [
+            //           Spacer(),
+            //           chooseType(),
+            //           EntryField(
+            //             maxLength: 10,
+            //             keyboardType: TextInputType.phone,
+            //             controller: _numberController,
+            //             label: getTranslated(context,'ENTER_PHONE'),
+            //           ),
+            //           Spacer(flex: 1),
+            //           InkWell(
+            //             onTap: () async {
+            //                 if (_numberController.text == "" ||
+            //                   _numberController.text.length != 10) {
+            //                 setSnackbar("Please Enter Valid Mobile Number", context);
+            //                 return;
+            //                   }
+            //                 setState(() {
+            //                   loading = true;
+            //                 });
+            //                 loginWithMobile();
+            //             },
+            //             child: Container(
+            //               width: 75.w,
+            //               height: 6.h,
+            //               decoration: boxDecoration(
+            //                   radius: 10,
+            //                   bgColor: Theme.of(context).primaryColor),
+            //               child: Center(
+            //                   child: !loading
+            //                       ?text(getTranslated(context, "GET_OTP")!,
+            //                       fontFamily: fontMedium,
+            //                       fontSize: 12.sp,
+            //                       textColor: Colors.white):CircularProgressIndicator()),
+            //             ),
+            //           ),
+            //           Spacer(flex: 1),
+            //           Row(
+            //             crossAxisAlignment: CrossAxisAlignment.center,
+            //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //             children: [
+            //               boxWidth(40),
+            //               Expanded(child: Divider()),
+            //               boxWidth(10),
+            //               text(getTranslated(context, "OR")!,
+            //                   fontFamily: fontMedium,
+            //                   fontSize: 12.sp,
+            //                   textColor: Colors.black),
+            //               boxWidth(10),
+            //               Expanded(child: Divider()),
+            //               boxWidth(40),
+            //             ],
+            //           ),
+            //           Spacer(flex: 1),
+            //           Container(
+            //             child: Row(
+            //               mainAxisSize: MainAxisSize.max,
+            //               mainAxisAlignment: MainAxisAlignment.center,
+            //               children: [
+            //                 InkWell(
+            //                   onTap: () {
+            //                     loginFb();
+            //                   },
+            //                   child: Image.asset(
+            //                     "assets/fb.png",
+            //                     width: 8.h,
+            //                     height: 8.h,
+            //                   ),
+            //                 ),
+            //                 SizedBox(
+            //                   width: 5.w,
+            //                 ),
+            //                 InkWell(
+            //                   onTap: () {
+            //                     googleLogin();
+            //                   },
+            //                   child: Image.asset(
+            //                     "assets/google.png",
+            //                     width: 8.h,
+            //                     height: 8.h,
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //           ),
+            //           Spacer(flex: 1),
+            //           InkWell(
+            //             onTap: (){
+            //               navigateScreen(
+            //                   context, RegistrationUI("","",""));
+            //             },
+            //             child: Padding(
+            //               padding: const EdgeInsets.symmetric(horizontal:15.0,vertical: 5),
+            //               child: Row(
+            //                 mainAxisAlignment: MainAxisAlignment.center,
+            //                 children: [
+            //                   text(getTranslated(context, "ACCOUNT")!,
+            //                       fontFamily: fontMedium,
+            //                       fontSize: 12.sp,
+            //                       textColor: Colors.black),
+            //                   text(getTranslated(context, "REGISTER")!,
+            //                       fontFamily: fontMedium,
+            //                       fontSize: 12.sp,
+            //                       under: true,
+            //                       textColor: Colors.black),
+            //                 ],
+            //               ),
+            //             ),
+            //           ),
+            //           Spacer(flex: 1),
+            //         ],
+            //       ),
+            //     ),
+            //   ],
+            // ),
           ),
         ),
         beginOffset: Offset(0, 0.3),
@@ -425,6 +466,7 @@ class _LoginUIState extends State<LoginUI> {
   ApiBaseHelper apiBase = new ApiBaseHelper();
   bool isNetwork = false;
   bool loading = false;
+
   loginUser() async {
     await App.init();
     isNetwork = await isNetworkAvailable();
@@ -433,7 +475,7 @@ class _LoginUIState extends State<LoginUI> {
         print("temp = $tempRefer");
         Map data;
         data = {
-          "user_email": emailCon.text.trim().toString(),
+          "user_email": _numberController.text.toString(),
           "pass": passCon.text.trim().toString(),
           "fcm_id": fcmToken.toString(),
         };

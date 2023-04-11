@@ -62,7 +62,7 @@ String proImage="";
 int likeCount = 0;
 bool notification = true;
 bool doLock = false;
-String name="",email="",gender1="",dob ="",password = "",mobile="",image = "",drivingImage = "",brand = "",model = "", number = "",refer ="",referUrl = "",tempRefer="";
+String name="",email="",gender1="",dob ="",password = "",mobile="",image = "",drivingImage = "",brand = "",model = "", number = "",refer ="",referUrl = "",tempRefer="", isFirstUser = "";
 String razorPayKey="rzp_test_UUBtmcArqOLqIY";
 String userNumber = "";
 String cancelTime = "";

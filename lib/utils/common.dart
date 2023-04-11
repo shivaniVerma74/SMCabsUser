@@ -25,6 +25,7 @@ class App {
     localStorage = await SharedPreferences.getInstance();
   }
 }
+
 class DateFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(

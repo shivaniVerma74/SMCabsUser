@@ -34,6 +34,7 @@ class RideBookedPage extends StatefulWidget {
   _RideBookedPageState createState() => _RideBookedPageState();
 }
 
+
 class _RideBookedPageState extends State<RideBookedPage> {
   bool isOpened = false;
   ApiBaseHelper apiBase = new ApiBaseHelper();
@@ -710,7 +711,10 @@ class _DetailsState extends State<Details> {
                     style: theme.textTheme.headline6!
                         .copyWith(color: theme.hintColor, fontSize: 16.5),
                   ),
-                  trailing: Text('${widget.model.km} km',
+                  trailing:
+                  widget.model.km == null || widget.model.km == '' || widget.model.km == '0'?
+                  SizedBox.shrink():
+                  Text('${widget.model.km} km',
                       style:
                           theme.textTheme.headline6!.copyWith(fontSize: 16.5)),
                 ),
@@ -726,7 +730,9 @@ class _DetailsState extends State<Details> {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                   ),
                 ),
-                ListTile(
+                widget.model.dropAddress == null || widget.model.dropAddress =='' ?
+                    SizedBox.shrink()
+               :  ListTile(
                   horizontalTitleGap: 0,
                   leading: Icon(
                     Icons.navigation,
@@ -749,7 +755,9 @@ class _DetailsState extends State<Details> {
                 borderRadius: BorderRadius.circular(16)),
             child: Row(
               children: [
-                buildRowItem(theme, 'PAYMENT_VIA',
+                widget.model.transaction == null || widget.model.transaction == ''?
+                    SizedBox.shrink()
+                :buildRowItem(theme, 'PAYMENT_VIA',
                     '${widget.model.transaction}', Icons.account_balance_wallet),
                 Spacer(),
                 buildRowItem(theme, 'RIDE_FARE', '\u{20B9} ${widget.model.amount}',

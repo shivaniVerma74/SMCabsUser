@@ -134,7 +134,7 @@ class _RegistrationUIState extends State<RegistrationUI> {
                           EntryField(
                             controller: emailCon,
                             keyboardType: TextInputType.emailAddress,
-                            label: getTranslated(context,'EMAIL_ADD'),
+                            label: "${getTranslated(context,'EMAIL_ADD')} (optional)",
                           ),
                           gender.length>0?EntryField(
                             maxLength: 10,
@@ -237,10 +237,10 @@ class _RegistrationUIState extends State<RegistrationUI> {
             setSnackbar("Please Enter Full Name", context);
             return;
           }
-          if(validateEmail(emailCon.text, getTranslated(context, "VALID_EMAIL")!,getTranslated(context, "VALID_EMAIL")!)!=null){
-            setSnackbar(validateEmail(emailCon.text, getTranslated(context, "VALID_EMAIL")!,getTranslated(context, "VALID_EMAIL")!).toString(), context);
-            return;
-          }
+          // if(validateEmail(emailCon.text, getTranslated(context, "VALID_EMAIL")!,getTranslated(context, "VALID_EMAIL")!)!=null){
+          //   setSnackbar(validateEmail(emailCon.text, getTranslated(context, "VALID_EMAIL")!,getTranslated(context, "VALID_EMAIL")!).toString(), context);
+          //   return;
+          // }
           if(validateField(genderCon.text, "Please Enter Gender")!=null){
             setSnackbar("Please Enter Gender", context);
             return;

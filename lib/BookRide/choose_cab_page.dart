@@ -9,7 +9,6 @@ import 'package:animation_wrappers/animation_wrappers.dart';
 import 'package:cabira/BookRide/finding_ride_page.dart';
 import 'package:cabira/BookRide/map.dart';
 import 'package:cabira/Model/driver_model.dart';
-
 import 'package:cabira/Model/ride_model.dart';
 import 'package:cabira/utils/ApiBaseHelper.dart';
 import 'package:cabira/utils/Session.dart';
@@ -62,6 +61,7 @@ class _ChooseCabPageState extends State<ChooseCabPage> {
     bookingDate = widget.bookingDate;
     getDriver();
     getPromo();
+    // getJoiningBonus();
 //    getRides();
     getTime1(widget.source.latitude.toString(), widget.source.longitude.toString(), widget.destination.latitude.toString(), widget.destination.longitude.toString());
     //getEstimated();
@@ -582,11 +582,14 @@ class _ChooseCabPageState extends State<ChooseCabPage> {
                 children: [
                   InkWell(
                     onTap: () {
+                      if(isFirstUser != "1") {
+                        if (bookingDate != null) {
+                          showConfirm("schedule");
+                        } else {
+                          showConfirm("now");
+                        }
+                      }else{
 
-                      if (bookingDate != null) {
-                        showConfirm("schedule");
-                      } else {
-                        showConfirm("now");
                       }
                       // Navigator.push(context, MaterialPageRoute(builder: (context)=>FindingRidePage()));
                     },
@@ -654,9 +657,13 @@ class _ChooseCabPageState extends State<ChooseCabPage> {
   }
 
   showConfirm(String type) {
+    getJoiningBonus();
     surge = 0;
     gst = 0;
     gst = ((double.parse(rideList[_currentCar].gst)*double.parse(rideList[_currentCar].intailrate))/100).roundToDouble();
+    // if(isFirstUser != "1"){
+
+    // }
     if(type!="schedule"&&!rideList[_currentCar].serge.contains("Not")&&rideList[_currentCar].surge_charge.length>0){
       if(rideList[_currentCar].surge_charge[0]['time_on_off'].toString()!="CLOSED"){
         surge = ((double.parse(rideList[_currentCar].surge_charge[0]['amount'].toString())*double.parse(rideList[_currentCar].intailrate))/100).roundToDouble();
@@ -947,24 +954,31 @@ class _ChooseCabPageState extends State<ChooseCabPage> {
                       InkWell(
                         onTap: () {
                           Navigator.pop(context1);
-                          if (type == "now") {
-                            if(totalBal > 0 ) {
-                              addRides();
-                            }else{
-                              setState(() {
-                                saveStatus = true;
-                              });
-                              setSnackbar("User not allowed! wallet balance is low", context);
-                            }
-                          } else {
-                            print("this is schedule time ${bookingDate!.hour} : ${bookingDate!.minute}");
-                            if(totalBal > 0 ) {
-                              addScheduleRides();
-                            }else{
-                              setState(() {
-                                saveStatus = true;
-                              });
-                              setSnackbar("User not allowed! wallet balance is low", context);
+                          if(isFirstUser != "1") {
+                            if (type == "now") {
+                              if (totalBal.isNegative) {
+                                setState(() {
+                                  saveStatus = true;
+                                });
+                                setSnackbar(
+                                    "You have negative balance, Please update wallet",
+                                    context);
+                              } else {
+                                addRides();
+                              }
+                            } else {
+                              print("this is schedule time ${bookingDate!
+                                  .hour} : ${bookingDate!.minute}");
+                              if (totalBal.isNegative) {
+                                setState(() {
+                                  saveStatus = true;
+                                });
+                                setSnackbar(
+                                    "You have negative balance, Please update wallet",
+                                    context);
+                              } else {
+                                addScheduleRides();
+                              }
                             }
                           }
 
@@ -992,6 +1006,8 @@ class _ChooseCabPageState extends State<ChooseCabPage> {
           );
         });
   }
+
+
 
   String paymentType = "Wallet";
   DateTime? bookingDate;
@@ -1211,8 +1227,10 @@ class _ChooseCabPageState extends State<ChooseCabPage> {
       setSnackbar(getTranslated(context, "WRONG")!, context);
     }
   }
+
   String totalTime = "0".toString();
   String distance = "0".toString();
+
   getTime1(lat1, lon1, lat2, lon2)async {
     if (lat1 != "" && lat1 != null && lon1 != "" && lon1 != null &&
         lat2 != "" && lat2 != null && lon2 != "" && lon2 != null) {
@@ -1236,6 +1254,7 @@ class _ChooseCabPageState extends State<ChooseCabPage> {
       getRides("0");
     }
   }
+
   getDriver() async {
     try {
       setState(() {
@@ -1278,7 +1297,10 @@ class _ChooseCabPageState extends State<ChooseCabPage> {
       });
     }
   }
+
   List<PromoModel> promoList = [];
+  String bonusAmount = '';
+  String minRideAmount = '';
   getPromo() async {
     try {
       setState(() {
@@ -1300,6 +1322,49 @@ class _ChooseCabPageState extends State<ChooseCabPage> {
         setState(() {
           driveStatus = false;
         });
+      } else {
+        setState(() {
+          driveStatus = false;
+        });
+        //setSnackbar(response['message'], context);
+      }
+    } on TimeoutException catch (_) {
+      setSnackbar(getTranslated(context, "WRONG")!, context);
+      setState(() {
+        driveStatus = true;
+      });
+    }
+  }
+
+  getJoiningBonus() async {
+    try {
+      setState(() {
+        driveStatus = true;
+        driverList.clear();
+      });
+      // Map params = {
+      //   "lat": widget.source.latitude.toString(),
+      //   "lang": widget.source.longitude.toString(),
+      // };
+      https://productsalphawizz.com/taxi/api/Payment/get_promo_code
+      Map response = await apiBase.getAPICall(
+        Uri.parse(baseUrl1 + "Payment/joining_bonus_user"),);
+
+      if (response['status']) {
+        minRideAmount = response['data']['min_booking'];
+          String promoAmount = response['data']['amount'];
+        print("this is joining bonus amount $minRideAmount");
+        setState(() {
+          driveStatus = false;
+        });
+        if(isFirstUser != null && isFirstUser != "1") {
+            if (double.parse(rideList[_currentCar].intailrate) >
+                double.parse(minRideAmount)) {
+              setState(() {
+                promoDiscount = promoAmount;
+              });
+          }
+        }
       } else {
         setState(() {
           driveStatus = false;

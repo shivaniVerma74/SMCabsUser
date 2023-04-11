@@ -239,7 +239,7 @@ class _FindingRidePageState extends State<FindingRidePage>
     print("CANCEL RIDE ======= $data");
     Map response = await apiBaseHelper.postAPICall(Uri.parse(baseUrl1+"payment/cancel_ride"), data);
     if(response['status']){
-      Navigator.pop(context);
+      // Navigator.pop(context);
           setSnackbar("Booking Cancelled", context);
     }else{
 
