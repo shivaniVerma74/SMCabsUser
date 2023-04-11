@@ -23,15 +23,14 @@ class _LoginPageState extends State<LoginPage> implements LoginInteractor {
 
   void listenDeepLinkData(BuildContext context) async {
     FlutterBranchSdk.initSession().listen((data) {
-      print("data"+data.toString());
+      //print("data"+data.toString());
       if(data['refer_code']!=null){
         tempRefer = data['refer_code'];
       }
-      print("temp = $tempRefer");
+      //print("temp = $tempRefer");
     }, onError: (error) {
       PlatformException platformException = error as PlatformException;
-      print(
-          '${platformException.code} - ${platformException.message}');
+      //print('${platformException.code} - ${platformException.message}');
     });
     changePage();
   }

@@ -28,8 +28,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   MapUtils.getMarkerPic();
-  MobileAds.instance.initialize();
-  WidgetsFlutterBinding.ensureInitialized();
+  // MobileAds.instance.initialize();
   HttpOverrides.global = MyHttpOverrides();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(myForgroundMessageHandler);
@@ -44,18 +43,22 @@ void main() async {
     BlocProvider(create: (context) => ThemeCubit(isDark ?? false)),
   ], child: Cabira()));
 }
-class MyHttpOverrides extends HttpOverrides{
+
+class MyHttpOverrides extends HttpOverrides {
   @override
-  HttpClient createHttpClient(SecurityContext? context){
+  HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }
+
 class Cabira extends StatefulWidget {
   static void setLocale(BuildContext context, Locale newLocale) {
     _CabiraState state = context.findAncestorStateOfType<_CabiraState>()!;
     state.setLocale(newLocale);
   }
+
   @override
   State<Cabira> createState() => _CabiraState();
 }
@@ -68,6 +71,7 @@ class _CabiraState extends State<Cabira> {
     super.initState();
     initPlatformState();
   }
+
   Locale? _locale;
 
   setLocale(Locale locale) {
@@ -87,18 +91,19 @@ class _CabiraState extends State<Cabira> {
     });
     super.didChangeDependencies();
   }
+
   initPlatformState() async {
     await App.init();
     bool keptOn = await Screen.isKeptOn;
-    if(App.localStorage.getBool("lock")!=null){
+    if (App.localStorage.getBool("lock") != null) {
       doLock = App.localStorage.getBool("lock")!;
       Screen.keepOn(App.localStorage.getBool("lock"));
     }
-    if(App.localStorage.getBool("notification")!=null){
+    if (App.localStorage.getBool("notification") != null) {
       notification = App.localStorage.getBool("notification")!;
     }
     double brightness = await Screen.brightness;
-    setState((){
+    setState(() {
       _isKeptOn = keptOn;
       _brightness = brightness;
     });
@@ -107,44 +112,41 @@ class _CabiraState extends State<Cabira> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return Sizer(
-      builder: (context,orientation,deviceType) {
-        return BlocBuilder<LanguageCubit, Locale>(
-          builder: (context, locale) {
-            return BlocBuilder<ThemeCubit, ThemeData>(
-              builder: (context, theme) {
-                return MaterialApp(
-                  locale: _locale,
-                  supportedLocales: [
-                    Locale("en", "US"),
-                    Locale("ne", "NPL"),
-                  ],
-                  localizationsDelegates: [
-
-                    DemoLocalization.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  localeResolutionCallback: (locale, supportedLocales) {
-                    for (var supportedLocale in supportedLocales) {
-                      if (supportedLocale.languageCode == locale!.languageCode &&
-                          supportedLocale.countryCode == locale.countryCode) {
-                        return supportedLocale;
-                      }
+    return Sizer(builder: (context, orientation, deviceType) {
+      return BlocBuilder<LanguageCubit, Locale>(
+        builder: (context, locale) {
+          return BlocBuilder<ThemeCubit, ThemeData>(
+            builder: (context, theme) {
+              return MaterialApp(
+                locale: _locale,
+                supportedLocales: [
+                  Locale("en", "US"),
+                  Locale("ne", "NPL"),
+                ],
+                localizationsDelegates: [
+                  DemoLocalization.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                localeResolutionCallback: (locale, supportedLocales) {
+                  for (var supportedLocale in supportedLocales) {
+                    if (supportedLocale.languageCode == locale!.languageCode &&
+                        supportedLocale.countryCode == locale.countryCode) {
+                      return supportedLocale;
                     }
-                    return supportedLocales.first;
-                  },
-                  theme: theme,
-                  home: LoginPage(),
-                 // routes: PageRoutes().routes(),
-                  debugShowCheckedModeBanner: false,
-                );
-              },
-            );
-          },
-        );
-      }
-    );
+                  }
+                  return supportedLocales.first;
+                },
+                theme: theme,
+                home: LoginPage(),
+                // routes: PageRoutes().routes(),
+                debugShowCheckedModeBanner: false,
+              );
+            },
+          );
+        },
+      );
+    });
   }
 }

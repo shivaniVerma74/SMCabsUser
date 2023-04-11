@@ -37,7 +37,6 @@ class MyRidesPage extends StatefulWidget {
 }
 
 class _MyRidesPageState extends State<MyRidesPage> {
-
   ApiBaseHelper apiBase = new ApiBaseHelper();
   bool isNetwork = false;
   bool loading = true;
@@ -54,7 +53,8 @@ class _MyRidesPageState extends State<MyRidesPage> {
         "type": type,
       };
       print("ALL COMPLETE RIDE PARAM ====== $params");
-      Map response = await apiBase.postAPICall(Uri.parse(baseUrl1 + "Payment/get_all_complete_user"), params);
+      Map response = await apiBase.postAPICall(
+          Uri.parse(baseUrl1 + "Payment/get_all_complete_user"), params);
       setState(() {
         loading = false;
         rideList.clear();
@@ -62,7 +62,7 @@ class _MyRidesPageState extends State<MyRidesPage> {
       });
       if (response['status']) {
         print(response['data']);
-        for(var v in response['data']){
+        for (var v in response['data']) {
           setState(() {
             rideList.add(MyRideModel.fromJson(v));
             _globalKey.add(new GlobalKey());
@@ -83,7 +83,8 @@ class _MyRidesPageState extends State<MyRidesPage> {
     getReason();
     getRides("3");
   }
-  bool selected =true;
+
+  bool selected = true;
   List<String> filter = ["All", "Today", "Weekly", "Monthly"];
   String selectedFil = "All";
   @override
@@ -101,7 +102,7 @@ class _MyRidesPageState extends State<MyRidesPage> {
                 width: getWidth(375),
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
-                  getTranslated(context,'MY_RIDES')!,
+                  getTranslated(context, 'MY_RIDES')!,
                   style: theme.textTheme.headline4,
                 ),
               ),
@@ -109,79 +110,89 @@ class _MyRidesPageState extends State<MyRidesPage> {
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 width: getWidth(375),
                 child: Text(
-                  getTranslated(context,'LIST_OF_RIDES')!,
+                  getTranslated(context, 'LIST_OF_RIDES')!,
                   style: theme.textTheme.bodyText2!
                       .copyWith(color: theme.hintColor, fontSize: 12),
                 ),
               ),
               Container(
                 width: getWidth(322.1),
-                decoration: boxDecoration(bgColor: Colors.white,radius: 10,showShadow: true, color: Theme.of(context).primaryColor, ),
+                decoration: boxDecoration(
+                  bgColor: Colors.white,
+                  radius: 10,
+                  showShadow: true,
+                  color: Theme.of(context).primaryColor,
+                ),
                 child: Row(
                   children: [
                     InkWell(
-                      onTap: (){
+                      onTap: () {
                         setState(() {
-                          selected =true;
+                          selected = true;
                         });
                         getRides("3");
                       },
                       child: Container(
                         height: getHeight(49),
                         width: getWidth(160),
-                        decoration: selected?BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromARGB(52, 61, 164, 139),
-                              offset: Offset(0.0, 0.0),
-                              blurRadius: 8.0,
-                            )
-                          ],
-                          borderRadius: BorderRadius.circular(10),
-                          color: Theme.of(context).primaryColor,
-                        ):BoxDecoration(),
+                        decoration: selected
+                            ? BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color.fromARGB(52, 61, 164, 139),
+                                    offset: Offset(0.0, 0.0),
+                                    blurRadius: 8.0,
+                                  )
+                                ],
+                                borderRadius: BorderRadius.circular(10),
+                                color: Theme.of(context).primaryColor,
+                              )
+                            : BoxDecoration(),
                         child: Center(
                           child: text(
                             getTranslated(context, "COMPLETED")!,
                             fontFamily: fontSemibold,
                             fontSize: 11.sp,
-                            textColor: selected?Colors.white:Color(0xff37778A),
+                            textColor:
+                                selected ? Colors.white : Color(0xff37778A),
                           ),
                         ),
                       ),
                     ),
                     InkWell(
-                      onTap: (){
+                      onTap: () {
                         setState(() {
-                          selected =false;
+                          selected = false;
                         });
                         getRides("1");
                       },
                       child: Container(
                         height: getHeight(49),
                         width: getWidth(160),
-                        decoration: !selected?BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromARGB(52, 61, 164, 139),
-                              offset: Offset(0.0, 0.0),
-                              blurRadius: 8.0,
-                            )
-                          ],
-                          borderRadius: BorderRadius.circular(10),
-                          color: Theme.of(context).primaryColor,
-                        ):BoxDecoration(),
+                        decoration: !selected
+                            ? BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color.fromARGB(52, 61, 164, 139),
+                                    offset: Offset(0.0, 0.0),
+                                    blurRadius: 8.0,
+                                  )
+                                ],
+                                borderRadius: BorderRadius.circular(10),
+                                color: Theme.of(context).primaryColor,
+                              )
+                            : BoxDecoration(),
                         child: Center(
                           child: text(
                             getTranslated(context, "UPCOMING")!,
                             fontFamily: fontSemibold,
                             fontSize: 11.sp,
-                            textColor: !selected?Colors.white:Color(0xff37778A),
+                            textColor:
+                                !selected ? Colors.white : Color(0xff37778A),
                           ),
                         ),
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -190,57 +201,61 @@ class _MyRidesPageState extends State<MyRidesPage> {
                 spacing: 3.w,
                 children: filter.map((e) {
                   return InkWell(
-                    onTap: (){
+                    onTap: () {
                       setState(() {
                         selectedFil = e.toString();
                       });
                       var now = new DateTime.now();
                       var now_1w = now.subtract(Duration(days: 7));
-                      var now_1m = new DateTime(now.year, now.month-1, now.day);
-                      if(selectedFil == "Today"){
-                        for(int i=0;i<rideList.length;i++){
-                          DateTime date = DateTime.parse(rideList[i].createdDate.toString());
-                          if(now.day == date.day && now.month==date.month){
+                      var now_1m =
+                          new DateTime(now.year, now.month - 1, now.day);
+                      if (selectedFil == "Today") {
+                        for (int i = 0; i < rideList.length; i++) {
+                          DateTime date = DateTime.parse(
+                              rideList[i].createdDate.toString());
+                          if (now.day == date.day && now.month == date.month) {
                             setState(() {
                               rideList[i].show = true;
                             });
-                          }else{
+                          } else {
                             setState(() {
                               rideList[i].show = false;
                             });
                           }
                         }
                       }
-                      if(selectedFil == "Weekly"){
-                        for(int i=0;i<rideList.length;i++){
-                          DateTime date = DateTime.parse(rideList[i].createdDate.toString());
-                          if(now_1w.isBefore(date)){
+                      if (selectedFil == "Weekly") {
+                        for (int i = 0; i < rideList.length; i++) {
+                          DateTime date = DateTime.parse(
+                              rideList[i].createdDate.toString());
+                          if (now_1w.isBefore(date)) {
                             setState(() {
                               rideList[i].show = true;
                             });
-                          }else{
+                          } else {
                             setState(() {
                               rideList[i].show = false;
                             });
                           }
                         }
                       }
-                      if(selectedFil == "Monthly"){
-                        for(int i=0;i<rideList.length;i++){
-                          DateTime date = DateTime.parse(rideList[i].createdDate.toString());
-                          if(now_1m.isBefore(date)){
+                      if (selectedFil == "Monthly") {
+                        for (int i = 0; i < rideList.length; i++) {
+                          DateTime date = DateTime.parse(
+                              rideList[i].createdDate.toString());
+                          if (now_1m.isBefore(date)) {
                             setState(() {
                               rideList[i].show = true;
                             });
-                          }else{
+                          } else {
                             setState(() {
                               rideList[i].show = false;
                             });
                           }
                         }
                       }
-                      if(selectedFil == "All"){
-                        for(int i=0;i<rideList.length;i++){
+                      if (selectedFil == "All") {
+                        for (int i = 0; i < rideList.length; i++) {
                           setState(() {
                             rideList[i].show = true;
                           });
@@ -249,265 +264,423 @@ class _MyRidesPageState extends State<MyRidesPage> {
                     },
                     child: Chip(
                       side: BorderSide(color: MyColorName.primaryLite),
-                      backgroundColor: selectedFil==e?MyColorName.primaryLite:Colors.transparent,
+                      backgroundColor: selectedFil == e
+                          ? MyColorName.primaryLite
+                          : Colors.transparent,
                       shadowColor: Colors.transparent,
                       label: text(e,
                           fontFamily: fontMedium,
                           fontSize: 10.sp,
-                          textColor: selected==e?Colors.white:Colors.black),
+                          textColor:
+                              selected == e ? Colors.white : Colors.black),
                     ),
                   );
                 }).toList(),
               ),
               boxHeight(19),
-              !loading?rideList.length>0?ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: rideList.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) => rideList[index].status!="Cancelled"&&rideList[index].show!?GestureDetector(
-                  onTap: ()async {
-                   var result =await Navigator.push(context, MaterialPageRoute(builder: (
-                        context) => RideInfoPage(rideList[index])));
-                   if(result!=null){
-                     selected ? getRides("3") : getRides("1");
-                   }
-                  },
-                  child: Container(
-                    decoration: boxDecoration(bgColor: Colors.white,showShadow: true,radius: 10),
-                    margin: EdgeInsets.all(5.0),
-                    child: Column(
-                      children: [
-                        RepaintBoundary(
-                          key: _globalKey[index],
-                          child: Container(
-                            decoration: boxDecoration(bgColor: Colors.white,radius: 10),
-                            child: Column(
-                              children: [
-                                Container(
-                                  height: 100,
-                                  padding:
-                                      EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-                                  child: Row(
-                                    children: [
-                                      rideList[index].driverName!=null?Container(
-                                        height: 60,
-                                        width: 60,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(10),
-                                          child: Image.network(imagePath+rideList[index].driverImage.toString()),
-                                        ),
-                                      ):SizedBox(),
-                                      SizedBox(width: 16),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          rideList[index].driverName!=null?Text(
-                                            '${rideList[index].driverName}',
-                                            style: theme.textTheme.bodyText2,
-                                          ):  Text(
-                            '${getTranslated(context, "TRIP_ID")} - ${rideList[index].uneaqueId.toString()}',
-                            style: theme.textTheme.bodyText1,
-                          ),
-                                          rideList[index].driverName!=null?Text(
-                                            '${getTranslated(context, "TRIP_ID")} - ${rideList[index].uneaqueId.toString()}',
-                                            style: theme.textTheme.bodyText1,
-                                          ):SizedBox(),
-                                          Spacer(flex: 2),
-                                          Container(
-                                            width: getWidth(150),
-                                            child: Text(
-                                              '${rideList[index].taxiType}\n${rideList[index].dateAdded}',
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: theme.textTheme.caption,
+              !loading
+                  ? rideList.length > 0
+                      ? ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: rideList.length,
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) => rideList[index]
+                                          .status !=
+                                      "Cancelled" &&
+                                  rideList[index].show!
+                              ? GestureDetector(
+                                  onTap: () async {
+                                    var result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                RideInfoPage(rideList[index])));
+                                    if (result != null) {
+                                      selected ? getRides("3") : getRides("1");
+                                    }
+                                  },
+                                  child: Container(
+                                    decoration: boxDecoration(
+                                        bgColor: Colors.white,
+                                        showShadow: true,
+                                        radius: 10),
+                                    margin: EdgeInsets.all(5.0),
+                                    child: Column(
+                                      children: [
+                                        RepaintBoundary(
+                                          key: _globalKey[index],
+                                          child: Container(
+                                            decoration: boxDecoration(
+                                                bgColor: Colors.white,
+                                                radius: 10),
+                                            child: Column(
+                                              children: [
+                                                Container(
+                                                  height: 100,
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 12,
+                                                      horizontal: 14),
+                                                  child: Row(
+                                                    children: [
+                                                      rideList[index]
+                                                                  .driverName !=
+                                                              null
+                                                          ? Container(
+                                                              height: 60,
+                                                              width: 60,
+                                                              child: ClipRRect(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                                child: Image.network(imagePath +
+                                                                    rideList[
+                                                                            index]
+                                                                        .driverImage
+                                                                        .toString()),
+                                                              ),
+                                                            )
+                                                          : SizedBox(),
+                                                      SizedBox(width: 16),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          rideList[index]
+                                                                      .driverName !=
+                                                                  null
+                                                              ? Text(
+                                                                  '${rideList[index].driverName}',
+                                                                  style: theme
+                                                                      .textTheme
+                                                                      .bodyText2,
+                                                                )
+                                                              : Text(
+                                                                  '${getTranslated(context, "TRIP_ID")} - ${rideList[index].uneaqueId.toString()}',
+                                                                  style: theme
+                                                                      .textTheme
+                                                                      .bodyText1,
+                                                                ),
+                                                          rideList[index]
+                                                                      .driverName !=
+                                                                  null
+                                                              ? Text(
+                                                                  '${getTranslated(context, "TRIP_ID")} - ${rideList[index].uneaqueId.toString()}',
+                                                                  style: theme
+                                                                      .textTheme
+                                                                      .bodyText1,
+                                                                )
+                                                              : SizedBox(),
+                                                          Spacer(flex: 2),
+                                                          Container(
+                                                            width:
+                                                                getWidth(150),
+                                                            child: Text(
+                                                              '${rideList[index].taxiType}\n${rideList[index].dateAdded}',
+                                                              maxLines: 3,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style: theme
+                                                                  .textTheme
+                                                                  .caption,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Spacer(),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Text(
+                                                            '\u{20B9}${rideList[index].amount}',
+                                                            style: theme
+                                                                .textTheme
+                                                                .bodyText2!
+                                                                .copyWith(
+                                                                    color: theme
+                                                                        .primaryColor),
+                                                          ),
+                                                          Spacer(flex: 2),
+                                                          Text(
+                                                            "${rideList[index].transaction}" +
+                                                                '\n' +
+                                                                "${rideList[index].bookingType}",
+                                                            textAlign:
+                                                                TextAlign.right,
+                                                            style: theme
+                                                                .textTheme
+                                                                .caption,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Text(
+                                                    "OTP : ${rideList[index].bookingOtp.toString()}"),
+                                                ListTile(
+                                                  horizontalTitleGap: 0,
+                                                  leading: Icon(
+                                                    Icons.location_on,
+                                                    color: theme.primaryColor,
+                                                    size: 20,
+                                                  ),
+                                                  title: Text(
+                                                    '${rideList[index].pickupAddress}',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                  dense: true,
+                                                  tileColor: theme.cardColor,
+                                                ),
+                                                ListTile(
+                                                  horizontalTitleGap: 0,
+                                                  leading: Icon(
+                                                    Icons.navigation,
+                                                    color: theme.primaryColor,
+                                                    size: 20,
+                                                  ),
+                                                  title: Text(
+                                                    '${rideList[index].dropAddress}',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                  dense: true,
+                                                  tileColor: theme.cardColor,
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ],
-                                      ),
-
-                                      Spacer(),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            '\u{20B9}${rideList[index].amount}',
-                                            style: theme.textTheme.bodyText2!
-                                                .copyWith(color: theme.primaryColor),
-                                          ),
-                                          Spacer(flex: 2),
-                                          Text(
-                                            "${rideList[index].transaction}" +
-                                                '\n' +
-                                                "${rideList[index].bookingType}",
-                                            textAlign: TextAlign.right,
-                                            style: theme.textTheme.caption,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Text("OTP : ${rideList[index].bookingOtp.toString()}"),
-                                ListTile(
-                                  horizontalTitleGap: 0,
-                                  leading: Icon(
-                                    Icons.location_on,
-                                    color: theme.primaryColor,
-                                    size: 20,
-                                  ),
-                                  title: Text(
-                                    '${rideList[index].pickupAddress}',
-                                    style: TextStyle(fontWeight: FontWeight.w500),
-                                  ),
-                                  dense: true,
-                                  tileColor: theme.cardColor,
-                                ),
-                                ListTile(
-                                  horizontalTitleGap: 0,
-                                  leading: Icon(
-                                    Icons.navigation,
-                                    color: theme.primaryColor,
-                                    size: 20,
-                                  ),
-                                  title: Text(
-                                    '${rideList[index].dropAddress}',
-                                    style: TextStyle(fontWeight: FontWeight.w500),
-                                  ),
-                                  dense: true,
-                                  tileColor: theme.cardColor,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Divider(),
-
-                        boxHeight(5),
-                        !rideList[index].bookingType!.contains("Point")?Padding(
-                          padding: const EdgeInsets.symmetric(horizontal:8.0),
-                          child: Row(
-                            mainAxisAlignment: rideList[index].sharing_type!=null&&rideList[index].sharing_type!=""?MainAxisAlignment.spaceBetween:MainAxisAlignment.center,
-                            children: [
-                              AnimatedTextKit(
-                                animatedTexts: [
-                                  ColorizeAnimatedText(
-                                    "Schedule - ${rideList[index].pickupDate} ${rideList[index].pickupTime}",
-                                    textStyle: colorizeTextStyle,
-                                    colors: colorizeColors,
-                                  ),
-                                ],
-                                pause: Duration(milliseconds: 100),
-                                isRepeatingAnimation: true,
-                                totalRepeatCount: 100,
-                                onTap: () {
-                                  print("Tap Event");
-                                },
-                              ),
-                              rideList[index].sharing_type!=null&&rideList[index].sharing_type!=""?AnimatedTextKit(
-                                animatedTexts: [
-                                  ColorizeAnimatedText(
-                                    "${getTranslated(context, "RIDE_TYPE")} - ${rideList[index].sharing_type}",
-                                    textStyle: colorizeTextStyle,
-                                    colors: colorizeColors,
-                                  ),
-                                ],
-                                pause: Duration(milliseconds: 100),
-                                isRepeatingAnimation: true,
-                                totalRepeatCount: 100,
-                                onTap: () {
-                                  print("Tap Event");
-                                },
-                              ):SizedBox(),
-                            ],
-                          ),
-                        ):SizedBox(),
-                        boxHeight(5),
-                       /* !rideList[index].bookingType!.contains("Point")?Text(
+                                        ),
+                                        Divider(),
+                                        boxHeight(5),
+                                        !rideList[index]
+                                                .bookingType!
+                                                .contains("Point")
+                                            ? Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8.0),
+                                                child: Row(
+                                                  mainAxisAlignment: rideList[
+                                                                      index]
+                                                                  .sharing_type !=
+                                                              null &&
+                                                          rideList[index]
+                                                                  .sharing_type !=
+                                                              ""
+                                                      ? MainAxisAlignment
+                                                          .spaceBetween
+                                                      : MainAxisAlignment
+                                                          .center,
+                                                  children: [
+                                                    AnimatedTextKit(
+                                                      animatedTexts: [
+                                                        ColorizeAnimatedText(
+                                                          "Schedule - ${rideList[index].pickupDate} ${rideList[index].pickupTime}",
+                                                          textStyle:
+                                                              colorizeTextStyle,
+                                                          colors:
+                                                              colorizeColors,
+                                                        ),
+                                                      ],
+                                                      pause: Duration(
+                                                          milliseconds: 100),
+                                                      isRepeatingAnimation:
+                                                          true,
+                                                      totalRepeatCount: 100,
+                                                      onTap: () {
+                                                        print("Tap Event");
+                                                      },
+                                                    ),
+                                                    rideList[index].sharing_type !=
+                                                                null &&
+                                                            rideList[index]
+                                                                    .sharing_type !=
+                                                                ""
+                                                        ? AnimatedTextKit(
+                                                            animatedTexts: [
+                                                              ColorizeAnimatedText(
+                                                                "${getTranslated(context, "RIDE_TYPE")} - ${rideList[index].sharing_type}",
+                                                                textStyle:
+                                                                    colorizeTextStyle,
+                                                                colors:
+                                                                    colorizeColors,
+                                                              ),
+                                                            ],
+                                                            pause: Duration(
+                                                                milliseconds:
+                                                                    100),
+                                                            isRepeatingAnimation:
+                                                                true,
+                                                            totalRepeatCount:
+                                                                100,
+                                                            onTap: () {
+                                                              print(
+                                                                  "Tap Event");
+                                                            },
+                                                          )
+                                                        : SizedBox(),
+                                                  ],
+                                                ),
+                                              )
+                                            : SizedBox(),
+                                        boxHeight(5),
+                                        /* !rideList[index].bookingType!.contains("Point")?Text(
                           'Schedule - ${rideList[index].pickupDate} ${rideList[index].pickupTime}',
                           style: theme.textTheme.bodyText2,
                         ):SizedBox(),*/
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-
-                            selected?InkWell(
-                              onTap: () {
-                                showDialog(context: context, builder: (context) => RateRideDialog(rideList[index]));
-                               // showBottom(rideList[index].driverId,rideList[index].bookingId);
-                              },
-                              child: Container(
-                                width: 30.w,
-                                margin:
-                                EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-                                height: 5.h,
-                                decoration: boxDecoration(
-                                    radius: 5,
-                                    bgColor: Theme.of(context).primaryColor),
-                                child: Center(
-                                    child: loading1?text(getTranslated(context, "RATING")!,
-                                        fontFamily: fontMedium,
-                                        fontSize: 10.sp,
-                                        isCentered: true,
-                                        textColor: Colors.white):CircularProgressIndicator(color: Colors.white,)),
-                              ),
-                            ):
-                            InkWell(
-                              onTap: () {
-                                showBottom1(rideList[index].bookingId,rideList[index].createdDate,index);
-                              },
-                              child: Container(
-                                width: 30.w,
-                                margin:
-                                EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-                                height: 5.h,
-                                decoration: boxDecoration(
-                                    radius: 5,
-                                    bgColor: Theme.of(context).primaryColor),
-                                child: Center(
-                                    child: loading1?text(getTranslated(context, "CANCEL")!,
-                                        fontFamily: fontMedium,
-                                        fontSize: 10.sp,
-                                        isCentered: true,
-                                        textColor: Colors.white):CircularProgressIndicator(color: Colors.white,)),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                final referCodeService = ReferCodeService(context,onResult: (result){
-                                  capturePng(index,result);
-                                });
-                                referCodeService.init(rideList[index].bookingId);
-                                setState(() {
-                                  loading1 = false;
-                                });
-                              },
-                              child: Container(
-                                width: 30.w,
-                                margin:
-                                EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-                                height: 5.h,
-                                decoration: boxDecoration(
-                                    radius: 5,
-                                    bgColor: Theme.of(context).primaryColor),
-                                child: Center(
-                                    child: loading1?text(getTranslated(context, "SHARE")!,
-                                        fontFamily: fontMedium,
-                                        fontSize: 10.sp,
-                                        isCentered: true,
-                                        textColor: Colors.white):CircularProgressIndicator(color: Colors.white,)),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12),
-                      ],
-                    ),
-                  ),
-                ):SizedBox(),
-              ):Center(
-                child: text(getTranslated(context, "NO_RIDES")!,fontFamily: fontMedium,fontSize: 12.sp,textColor: Colors.black),
-              ):Center(child: CircularProgressIndicator()),
-
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            selected
+                                                ? InkWell(
+                                                    onTap: () {
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (context) =>
+                                                              RateRideDialog(
+                                                                  rideList[
+                                                                      index]));
+                                                      // showBottom(rideList[index].driverId,rideList[index].bookingId);
+                                                    },
+                                                    child: Container(
+                                                      width: 30.w,
+                                                      margin:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 5,
+                                                              horizontal: 16),
+                                                      height: 5.h,
+                                                      decoration: boxDecoration(
+                                                          radius: 5,
+                                                          bgColor: Theme.of(
+                                                                  context)
+                                                              .primaryColor),
+                                                      child: Center(
+                                                          child: loading1
+                                                              ? text(
+                                                                  getTranslated(
+                                                                      context,
+                                                                      "RATING")!,
+                                                                  fontFamily:
+                                                                      fontMedium,
+                                                                  fontSize:
+                                                                      10.sp,
+                                                                  isCentered:
+                                                                      true,
+                                                                  textColor:
+                                                                      Colors
+                                                                          .white)
+                                                              : CircularProgressIndicator(
+                                                                  color: Colors
+                                                                      .white,
+                                                                )),
+                                                    ),
+                                                  )
+                                                : InkWell(
+                                                    onTap: () {
+                                                      showBottom1(
+                                                          rideList[index]
+                                                              .bookingId,
+                                                          rideList[index]
+                                                              .createdDate,
+                                                          index);
+                                                    },
+                                                    child: Container(
+                                                      width: 30.w,
+                                                      margin:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 5,
+                                                              horizontal: 16),
+                                                      height: 5.h,
+                                                      decoration: boxDecoration(
+                                                          radius: 5,
+                                                          bgColor: Theme.of(
+                                                                  context)
+                                                              .primaryColor),
+                                                      child: Center(
+                                                          child: loading1
+                                                              ? text(
+                                                                  getTranslated(
+                                                                      context,
+                                                                      "CANCEL")!,
+                                                                  fontFamily:
+                                                                      fontMedium,
+                                                                  fontSize:
+                                                                      10.sp,
+                                                                  isCentered:
+                                                                      true,
+                                                                  textColor:
+                                                                      Colors
+                                                                          .white)
+                                                              : CircularProgressIndicator(
+                                                                  color: Colors
+                                                                      .white,
+                                                                )),
+                                                    ),
+                                                  ),
+                                            InkWell(
+                                              onTap: () {
+                                                final referCodeService =
+                                                    ReferCodeService(context,
+                                                        onResult: (result) {
+                                                  capturePng(index, result);
+                                                });
+                                                referCodeService.init(
+                                                    rideList[index].bookingId);
+                                                setState(() {
+                                                  loading1 = false;
+                                                });
+                                              },
+                                              child: Container(
+                                                width: 30.w,
+                                                margin: EdgeInsets.symmetric(
+                                                    vertical: 5,
+                                                    horizontal: 16),
+                                                height: 5.h,
+                                                decoration: boxDecoration(
+                                                    radius: 5,
+                                                    bgColor: Theme.of(context)
+                                                        .primaryColor),
+                                                child: Center(
+                                                    child: loading1
+                                                        ? text(
+                                                            getTranslated(context,
+                                                                "SHARE")!,
+                                                            fontFamily:
+                                                                fontMedium,
+                                                            fontSize: 10.sp,
+                                                            isCentered: true,
+                                                            textColor:
+                                                                Colors.white)
+                                                        : CircularProgressIndicator(
+                                                            color: Colors.white,
+                                                          )),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 12),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : SizedBox(),
+                        )
+                      : Center(
+                          child: text(getTranslated(context, "NO_RIDES")!,
+                              fontFamily: fontMedium,
+                              fontSize: 12.sp,
+                              textColor: Colors.black),
+                        )
+                  : Center(child: CircularProgressIndicator()),
             ],
           ),
         ),
@@ -517,6 +690,7 @@ class _MyRidesPageState extends State<MyRidesPage> {
       ),
     );
   }
+
   final colorizeColors = [
     Colors.purple,
     Colors.blue,
@@ -532,14 +706,13 @@ class _MyRidesPageState extends State<MyRidesPage> {
   PersistentBottomSheetController? controller;
   double rating = 4.0;
   TextEditingController desCon = new TextEditingController();
-  showBottom(driverId,bookingId) async {
+  showBottom(driverId, bookingId) async {
     controller = await scaffoldKey.currentState!.showBottomSheet((context) {
       return Container(
         padding: EdgeInsets.all(10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
             Text(
               "Rate Driver",
               style: TextStyle(
@@ -596,50 +769,51 @@ class _MyRidesPageState extends State<MyRidesPage> {
             ),
             !status
                 ? InkWell(
-              onTap: () {
-                controller!.setState!(() {
-                  status = true;
-                });
-                rateOrder(driverId,bookingId);
-              },
-              child: Container(
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(25.0),
-                  ),
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                        color:MyColorName.primaryDark.withOpacity(0.5),
-                        offset: const Offset(1.1, 1.1),
-                        blurRadius: 10.0),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    "Rate Booking",
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                      letterSpacing: 0.0,
-                      color: Colors.white,
+                    onTap: () {
+                      controller!.setState!(() {
+                        status = true;
+                      });
+                      rateOrder(driverId, bookingId);
+                    },
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor,
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(25.0),
+                        ),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                              color: MyColorName.primaryDark.withOpacity(0.5),
+                              offset: const Offset(1.1, 1.1),
+                              blurRadius: 10.0),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Rate Booking",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            letterSpacing: 0.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-            )
+                  )
                 : Center(
-              child: CircularProgressIndicator(),
-            )
+                    child: CircularProgressIndicator(),
+                  )
           ],
         ),
       );
     });
   }
+
   bool status = false;
-  rateOrder(driverId,bookingId) async {
+  rateOrder(driverId, bookingId) async {
     await App.init();
     Map param = {
       "driver_id": driverId,
@@ -649,9 +823,7 @@ class _MyRidesPageState extends State<MyRidesPage> {
       "user_id": curUserId,
     };
     Map response = await apiBase.postAPICall(
-        Uri.parse(
-            baseUrl1+"payment/AddReviews"),
-        param);
+        Uri.parse(baseUrl1 + "payment/AddReviews"), param);
     controller!.setState!(() {
       status = false;
     });
@@ -661,16 +833,18 @@ class _MyRidesPageState extends State<MyRidesPage> {
       Navigator.pop(context, "yes");
     }
   }
+
   List<GlobalKey> _globalKey = [];
 
-  Future<String> capturePng(i,url) async {
+  Future<String> capturePng(i, url) async {
     try {
       print('inside');
-      RenderRepaintBoundary? boundary =
-      _globalKey[i].currentContext!.findRenderObject()   as RenderRepaintBoundary?;
+      RenderRepaintBoundary? boundary = _globalKey[i]
+          .currentContext!
+          .findRenderObject() as RenderRepaintBoundary?;
       ui.Image image = await boundary!.toImage(pixelRatio: 3.0);
       ByteData? byteData =
-      await image.toByteData(format: ui.ImageByteFormat.png);
+          await image.toByteData(format: ui.ImageByteFormat.png);
       var pngBytes = byteData!.buffer.asUint8List();
       print(pngBytes);
       String dir = (await getApplicationSupportDirectory()).path;
@@ -680,13 +854,14 @@ class _MyRidesPageState extends State<MyRidesPage> {
       setState(() {
         loading = true;
       });
-      SocialShare.shareOptions("${referUrl}",imagePath: file.path);
+      SocialShare.shareOptions("${referUrl}", imagePath: file.path);
       return file.path;
     } catch (e) {
       print(e);
     }
     return "";
   }
+
   bool acceptStatus = false;
   List<ReasonModel> reasonList = [];
   getReason() async {
@@ -699,16 +874,14 @@ class _MyRidesPageState extends State<MyRidesPage> {
           "type": "User",
         };
         Map response = await apiBase.postAPICall(
-            Uri.parse(
-                baseUrl1+"payment/cancel_ride_reason"),
-            data);
+            Uri.parse(baseUrl1 + "payment/cancel_ride_reason"), data);
         print(response);
         print(response);
         bool status = true;
         String msg = response['message'];
         setSnackbar(msg, context);
         if (response['status']) {
-          for(var v in response['data']){
+          for (var v in response['data']) {
             setState(() {
               reasonList.add(new ReasonModel.fromJson(v));
             });
@@ -722,7 +895,8 @@ class _MyRidesPageState extends State<MyRidesPage> {
       setSnackbar(getTranslated(context, "NO_INTERNET")!, context);
     }
   }
-  cancelStatus(String bookingId,status1) async {
+
+  cancelStatus(String bookingId, status1) async {
     await App.init();
     isNetwork = await isNetworkAvailable();
     if (isNetwork) {
@@ -731,14 +905,12 @@ class _MyRidesPageState extends State<MyRidesPage> {
         data = {
           "type": "schedule_booking",
           "booking_time": status1,
-          "accept_reject": "5",
+          "accept_reject": "4",
           "booking_id": bookingId,
           "reason": reasonList[indexReason].reason,
         };
         Map response = await apiBase.postAPICall(
-            Uri.parse(
-                baseUrl1+"Payment/cancel_ride_user_driver"),
-            data);
+            Uri.parse(baseUrl1 + "Payment/cancel_ride_user_driver"), data);
         print(response);
         print(response);
         setState(() {
@@ -748,7 +920,10 @@ class _MyRidesPageState extends State<MyRidesPage> {
         String msg = response['message'];
         setSnackbar(msg, context);
         if (response['status']) {
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => SearchLocationPage()),
+              (route) => false);
         } else {}
       } on TimeoutException catch (_) {
         setSnackbar(getTranslated(context, "WRONG")!, context);
@@ -757,73 +932,95 @@ class _MyRidesPageState extends State<MyRidesPage> {
       setSnackbar(getTranslated(context, "NO_INTERNET")!, context);
     }
   }
+
   int indexReason = 0;
   PersistentBottomSheetController? persistentBottomSheetController1;
-  getDifference(index){
-      String date = rideList[index].pickupDate.toString();
-      DateTime temp = DateTime.parse(date);
-      if(temp.day==DateTime.now().day){
-        String time = rideList[index].pickupTime.toString().split(" ")[0];
-        DateTime temp = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day,int.parse(time.split(":")[0]),int.parse(time.split(":")[1]));
-        print(int.parse(cancelTime)<temp.difference(DateTime.now()).inHours);
-        return int.parse(cancelTime)>temp.difference(DateTime.now()).inHours;
-      }else{
-        print(false);
-        return false;
-      }
+  getDifference(index) {
+    String date = rideList[index].pickupDate.toString();
+    DateTime temp = DateTime.parse(date);
+    if (temp.day == DateTime.now().day) {
+      String time = rideList[index].pickupTime.toString().split(" ")[0];
+      DateTime temp = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          int.parse(time.split(":")[0]),
+          int.parse(time.split(":")[1]));
+      print(int.parse(cancelTime) < temp.difference(DateTime.now()).inHours);
+      return int.parse(cancelTime) > temp.difference(DateTime.now()).inHours;
+    } else {
+      print(false);
+      return false;
+    }
   }
-  showBottom1(id,date,index)async{
-    persistentBottomSheetController1 = await scaffoldKey.currentState!.showBottomSheet((context) {
+
+  showBottom1(id, date, index) async {
+    persistentBottomSheetController1 =
+        await scaffoldKey.currentState!.showBottomSheet((context) {
       return Container(
-        decoration: boxDecoration(radius: 0,showShadow: true,color: Colors.white),
+        decoration:
+            boxDecoration(radius: 0, showShadow: true, color: Colors.white),
         padding: EdgeInsets.all(getWidth(20)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            !rideList[index].bookingType!.contains("Point")&&getDifference(index)?
-            Container(
-              padding: EdgeInsets.all(getWidth(10)),
-              color: Colors.white,
-              child: AnimatedTextKit(
-                animatedTexts: [
-                  ColorizeAnimatedText(
-                    "Cancellation Charge ₹${rideList[index].cancel_charge} is deducted from wallet.",
-                    textStyle: colorizeTextStyle,
-                    colors: colorizeColors,
-                  ),
-                ],
-                pause: Duration(milliseconds: 100),
-                isRepeatingAnimation: true,
-                totalRepeatCount: 100,
-                onTap: () {
-                  print("Tap Event");
-                },
-              ),
-            ):SizedBox(),
+            !rideList[index].bookingType!.contains("Point") &&
+                    getDifference(index)
+                ? Container(
+                    padding: EdgeInsets.all(getWidth(10)),
+                    color: Colors.white,
+                    child: AnimatedTextKit(
+                      animatedTexts: [
+                        ColorizeAnimatedText(
+                          "Cancellation Charge ₹${rideList[index].cancel_charge} is deducted from wallet.",
+                          textStyle: colorizeTextStyle,
+                          colors: colorizeColors,
+                        ),
+                      ],
+                      pause: Duration(milliseconds: 100),
+                      isRepeatingAnimation: true,
+                      totalRepeatCount: 100,
+                      onTap: () {
+                        print("Tap Event");
+                      },
+                    ),
+                  )
+                : SizedBox(),
             Text("OTP : ${rideList[index].otp.toString()}"),
             boxHeight(20),
-            text("${getTranslated(context, "SELECT_REASON")}",textColor: MyColorName.colorTextPrimary,fontSize: 12.sp,fontFamily: fontBold),
+            text("${getTranslated(context, "SELECT_REASON")}",
+                textColor: MyColorName.colorTextPrimary,
+                fontSize: 12.sp,
+                fontFamily: fontBold),
             boxHeight(20),
-            reasonList.length>0?Container(
-              child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: reasonList.length,
-                  itemBuilder:(context, index) {
-                    return  InkWell(
-                      onTap: (){
-                        persistentBottomSheetController1!.setState!((){
-                          indexReason = index;
-                        });
-                        // Navigator.pop(context);
-                      },
-                      child: Container(
-                        color: indexReason==index?MyColorName.primaryLite.withOpacity(0.2):Colors.white,
-                        padding: EdgeInsets.all(getWidth(10)),
-                        child: text(reasonList[index].reason.toString(),textColor: MyColorName.colorTextPrimary,fontSize: 10.sp,fontFamily: fontMedium,isLongText: true),
-                      ),
-                    );
-                  }),
-            ):SizedBox(),
+            reasonList.length > 0
+                ? Container(
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: reasonList.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            onTap: () {
+                              persistentBottomSheetController1!.setState!(() {
+                                indexReason = index;
+                              });
+                              // Navigator.pop(context);
+                            },
+                            child: Container(
+                              color: indexReason == index
+                                  ? MyColorName.primaryLite.withOpacity(0.2)
+                                  : Colors.white,
+                              padding: EdgeInsets.all(getWidth(10)),
+                              child: text(reasonList[index].reason.toString(),
+                                  textColor: MyColorName.colorTextPrimary,
+                                  fontSize: 10.sp,
+                                  fontFamily: fontMedium,
+                                  isLongText: true),
+                            ),
+                          );
+                        }),
+                  )
+                : SizedBox(),
             boxHeight(20),
             Row(
               children: [
@@ -836,9 +1033,7 @@ class _MyRidesPageState extends State<MyRidesPage> {
                     height: 5.h,
                     margin: EdgeInsets.all(getWidth(14)),
                     decoration: boxDecoration(
-                        radius: 5,
-                        bgColor: Theme.of(context)
-                            .primaryColor),
+                        radius: 5, bgColor: Theme.of(context).primaryColor),
                     child: Center(
                         child: text(getTranslated(context, "CANCEL")!,
                             fontFamily: fontMedium,
@@ -855,28 +1050,28 @@ class _MyRidesPageState extends State<MyRidesPage> {
                     });
                     cancelStatus(id, date);
                   },
-                  child: !acceptStatus?Container(
-                    width: 35.w,
-                    height: 5.h,
-                    margin: EdgeInsets.all(getWidth(14)),
-                    decoration: boxDecoration(
-                        radius: 5,
-                        bgColor: Theme.of(context)
-                            .primaryColor),
-                    child: Center(
-                        child: text(getTranslated(context, "CONTINUE")!,
-                            fontFamily: fontMedium,
-                            fontSize: 10.sp,
-                            isCentered: true,
-                            textColor: Colors.white)),
-                  ):CircularProgressIndicator(),
+                  child: !acceptStatus
+                      ? Container(
+                          width: 35.w,
+                          height: 5.h,
+                          margin: EdgeInsets.all(getWidth(14)),
+                          decoration: boxDecoration(
+                              radius: 5,
+                              bgColor: Theme.of(context).primaryColor),
+                          child: Center(
+                              child: text(getTranslated(context, "CONTINUE")!,
+                                  fontFamily: fontMedium,
+                                  fontSize: 10.sp,
+                                  isCentered: true,
+                                  textColor: Colors.white)),
+                        )
+                      : CircularProgressIndicator(),
                 ),
               ],
             ),
             boxHeight(40),
           ],
         ),
-
       );
     });
   }
