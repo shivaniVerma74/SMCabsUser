@@ -44,6 +44,15 @@ class _RentalRidesState extends State<RentalRides> {
   bool loading = true;
   bool loading1 = true;
   List<MyRideModel> rideList = [];
+  String km = "", time = "";
+  int? indexSelected;
+  double driveLat = 0, driveLng = 0;
+  Timer? timer;
+  String durationToString(int minutes) {
+    var d = Duration(minutes: minutes);
+    List<String> parts = d.toString().split(':');
+    return '${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}';
+  }
 
   getRides(type) async {
     try {
@@ -70,6 +79,18 @@ class _RentalRidesState extends State<RentalRides> {
             _globalKey.add(new GlobalKey());
           });
         }
+        if (type == "1") {
+          indexSelected =
+              rideList.indexWhere((element) => element.acceptReject == "6");
+          if (indexSelected != -1) {
+            if (timer != null) {
+              timer!.cancel();
+            }
+            timer = Timer.periodic(Duration(seconds: 3), (timer) {
+              getDriver(rideList[indexSelected!].driverId);
+            });
+          }
+        }
       } else {
         setSnackbar(response['message'], context);
       }
@@ -91,10 +112,66 @@ class _RentalRidesState extends State<RentalRides> {
     getRides("3");
   }
 
+  getDriver(String? driverId) async {
+    await App.init();
+    isNetwork = await isNetworkAvailable();
+    if (isNetwork) {
+      try {
+        Map data;
+        data = {
+          "driver_id": driverId.toString(),
+        };
+        Map response = await apiBase.postAPICall(
+            Uri.parse(baseUrl1 + "Payment/get_driver_details"), data);
+        print(response);
+        print(response);
+        bool status = true;
+        String msg = response['message'];
+        // setSnackbar(msg, context);
+        if (response['status']) {
+          Map data = response['data'];
+          if (mounted)
+            setState(() {
+              driveLat = double.parse(data['latitude']);
+              driveLng = double.parse(data['longitude']);
+              print(indexSelected);
+              if (indexSelected != null && indexSelected != -1) {
+                List<String> calTime =
+                    rideList[indexSelected!].start_time!.split(":");
+                DateTime firstTime = DateTime(
+                    DateTime.now().year,
+                    DateTime.now().month,
+                    DateTime.now().day,
+                    int.parse(calTime[0]),
+                    int.parse(calTime[1]));
+                print(calTime.toString());
+                time = durationToString(
+                    DateTime.now().difference(firstTime).inMinutes);
+              }
+            });
+        } else {}
+      } on TimeoutException catch (_) {
+        setSnackbar(getTranslated(context, "WRONG")!, context);
+      }
+    } else {
+      setSnackbar(getTranslated(context, "NO_INTERNET")!, context);
+    }
+  }
+
   bool selected = true;
 
   List<String> filter = ["All", "Today", "Weekly", "Monthly"];
   String selectedFil = "All";
+
+  @override
+  void dispose() {
+    if (timer != null) {
+      timer!.cancel();
+    }
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
@@ -322,6 +399,35 @@ class _RentalRidesState extends State<RentalRides> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
+                                                indexSelected != null &&
+                                                        indexSelected != -1 &&
+                                                        indexSelected == index
+                                                    ? Container(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 5,
+                                                                horizontal: 5),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              'Time- $time/min.',
+                                                              style: theme
+                                                                  .textTheme
+                                                                  .bodyText1,
+                                                            ),
+                                                            Text(
+                                                              'Km- \u{20B9}${rideList[index].extra_km_charge.toString()}/Km.',
+                                                              style: theme
+                                                                  .textTheme
+                                                                  .bodyText1,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      )
+                                                    : SizedBox(),
                                                 Container(
                                                   padding: EdgeInsets.symmetric(
                                                       vertical: 5,
@@ -332,7 +438,7 @@ class _RentalRidesState extends State<RentalRides> {
                                                             .spaceBetween,
                                                     children: [
                                                       Text(
-                                                        'Extra Time- \u{20B9}${rideList[index].extra_time_charge.toString()}/min.',
+                                                        'Extra Time- ${rideList[index].extra_time_charge.toString()}/min.',
                                                         style: theme.textTheme
                                                             .bodyText1,
                                                       ),
@@ -455,7 +561,11 @@ class _RentalRidesState extends State<RentalRides> {
                                                                       .bookingType ==
                                                                   "Rental Booking"
                                                               ? Text(
-                                                                  "OTP : ${rideList[index].bookingOtp.toString()}",
+                                                                  rideList[index]
+                                                                              .acceptReject ==
+                                                                          "6"
+                                                                      ? "Complete OTP : ${rideList[index].bookingOtp.toString()}"
+                                                                      : "Start OTP : ${rideList[index].bookingOtp.toString()}",
                                                                   style: TextStyle(
                                                                       fontWeight:
                                                                           FontWeight
@@ -463,7 +573,7 @@ class _RentalRidesState extends State<RentalRides> {
                                                                       color: Colors
                                                                           .blue,
                                                                       fontSize:
-                                                                          14),
+                                                                          12),
                                                                 )
                                                               : SizedBox
                                                                   .shrink(),
@@ -504,28 +614,58 @@ class _RentalRidesState extends State<RentalRides> {
                                         !rideList[index]
                                                 .bookingType!
                                                 .contains("Point")
-                                            ? AnimatedTextKit(
-                                                animatedTexts: [
-                                                  ColorizeAnimatedText(
-                                                    rideList[index]
-                                                            .bookingType
-                                                            .toString()
-                                                            .contains(
-                                                                "Rental Booking")
-                                                        ? "Rental Booking - ${rideList[index].start_time} - ${rideList[index].end_time}"
-                                                        : "${getTranslated(context, "SCHEDULE")} - ${rideList[index].pickupDate} ${rideList[index].pickupTime}",
-                                                    textStyle:
-                                                        colorizeTextStyle,
-                                                    colors: colorizeColors,
+                                            ? Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  AnimatedTextKit(
+                                                    animatedTexts: [
+                                                      ColorizeAnimatedText(
+                                                        rideList[index]
+                                                                .bookingType
+                                                                .toString()
+                                                                .contains(
+                                                                    "Rental Booking")
+                                                            ? "Rental Booking - ${rideList[index].start_time} - ${rideList[index].end_time}"
+                                                            : "${getTranslated(context, "SCHEDULE")} - ${rideList[index].pickupDate} ${rideList[index].pickupTime}",
+                                                        textStyle:
+                                                            colorizeTextStyle,
+                                                        colors: colorizeColors,
+                                                      ),
+                                                    ],
+                                                    pause: Duration(
+                                                        milliseconds: 100),
+                                                    isRepeatingAnimation: true,
+                                                    totalRepeatCount: 100,
+                                                    onTap: () {
+                                                      print("Tap Event");
+                                                    },
+                                                  ),
+                                                  AnimatedTextKit(
+                                                    animatedTexts: [
+                                                      ColorizeAnimatedText(
+                                                        rideList[index]
+                                                                .bookingType
+                                                                .toString()
+                                                                .contains(
+                                                                    "Rental Booking")
+                                                            ? "Allow Time/KM ${rideList[index].hours}M - ${rideList[index].km}KM"
+                                                            : "",
+                                                        textStyle:
+                                                            colorizeTextStyle,
+                                                        colors: colorizeColors,
+                                                      ),
+                                                    ],
+                                                    pause: Duration(
+                                                        milliseconds: 100),
+                                                    isRepeatingAnimation: true,
+                                                    totalRepeatCount: 100,
+                                                    onTap: () {
+                                                      print("Tap Event");
+                                                    },
                                                   ),
                                                 ],
-                                                pause:
-                                                    Duration(milliseconds: 100),
-                                                isRepeatingAnimation: true,
-                                                totalRepeatCount: 100,
-                                                onTap: () {
-                                                  print("Tap Event");
-                                                },
                                               )
                                             : SizedBox(),
                                         /* !rideList[index].bookingType!.contains("Point")?Text(
@@ -694,7 +834,7 @@ class _RentalRidesState extends State<RentalRides> {
   ];
 
   final colorizeTextStyle = TextStyle(
-    fontSize: 14.0,
+    fontSize: 10.0,
     fontFamily: 'Horizon',
   );
   GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey();

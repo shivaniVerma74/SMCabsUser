@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:cabira/Model/driver_model.dart';
+import 'package:cabira/Model/my_ride_model.dart';
 import 'package:cabira/Theme/style.dart';
 import 'package:cabira/utils/ApiBaseHelper.dart';
 import 'package:cabira/utils/Session.dart';
@@ -11,28 +12,41 @@ import 'package:flutter/services.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:ui' as ui;
+
 const double CAMERA_ZOOM = 15;
 const double CAMERA_TILT = 0;
 const double CAMERA_BEARING = 30;
 
-double driveLat=0,driveLng=0;
+double driveLat = 0, driveLng = 0;
+
 class MapPage extends StatefulWidget {
   bool status;
   LatLng? SOURCE_LOCATION;
   LatLng? DEST_LOCATION;
-  String pick,dest;
+  String pick, dest;
   String? carType;
   List<DriverModel> driveList;
+  MyRideModel? model;
   String? status1;
   bool live;
   String? id;
-  MapPage(this.status,{ this.SOURCE_LOCATION, this.DEST_LOCATION,required this.driveList,required this.live,this.id,this.pick="",this.dest="",this.carType,this.status1});
+  MapPage(this.status,
+      {this.SOURCE_LOCATION,
+      this.DEST_LOCATION,
+      required this.driveList,
+      required this.live,
+      this.model,
+      this.id,
+      this.pick = "",
+      this.dest = "",
+      this.carType,
+      this.status1});
 
   @override
   State<StatefulWidget> createState() => MapPageState();
 }
 
-class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
+class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
   Completer<GoogleMapController> _controller = Completer();
@@ -54,20 +68,18 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
   LatLng? SOURCE_LOCATION;
   LatLng? DEST_LOCATION;
   Timer? timer;
+  String km = "", time = "";
   @override
   void initState() {
     super.initState();
     setSourceAndDestinationIcons();
-    driveLat=0;
-    driveLng=0;
-    if(widget.live){
+    driveLat = 0;
+    driveLng = 0;
+    if (widget.live) {
       timer = Timer.periodic(Duration(seconds: 5), (timer) {
         getDriver();
       });
-    }else{
-
-    }
-
+    } else {}
   }
 
   ApiBaseHelper apiBase = new ApiBaseHelper();
@@ -83,25 +95,23 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
           "driver_id": widget.id.toString(),
         };
         Map response = await apiBase.postAPICall(
-            Uri.parse(
-                baseUrl1+"Payment/get_driver_details"),
-            data);
+            Uri.parse(baseUrl1 + "Payment/get_driver_details"), data);
         print(response);
         print(response);
         bool status = true;
         String msg = response['message'];
-       // setSnackbar(msg, context);
+        // setSnackbar(msg, context);
         if (response['status']) {
-              Map data = response['data'];
-              driveLat = double.parse(data['latitude']);
-              driveLng = double.parse(data['longitude']);
-              if(!acceptStatus){
-                acceptStatus = true;
-                setPolylines();
-              }
+          Map data = response['data'];
+          driveLat = double.parse(data['latitude']);
+          driveLng = double.parse(data['longitude']);
+          if (!acceptStatus) {
+            acceptStatus = true;
+            setPolylines();
+          }
 
-        //      setSourceAndDestinationIcons();
-              updatePinOnMap();
+          //      setSourceAndDestinationIcons();
+          updatePinOnMap();
           //   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> OfflinePage("")), (route) => false);
         } else {}
       } on TimeoutException catch (_) {
@@ -111,6 +121,7 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
       setSnackbar(getTranslated(context, "NO_INTERNET")!, context);
     }
   }
+
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
     ByteData data = await rootBundle.load(path);
     ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
@@ -120,22 +131,20 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
         .buffer
         .asUint8List();
   }
+
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
   late LatLng latLng;
   getMarkers() async {
     final GoogleMapController controller = await _controller.future;
 
-
-    final MarkerId markerId =
-    MarkerId((widget.driveList[0].id).toString());
+    final MarkerId markerId = MarkerId((widget.driveList[0].id).toString());
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(target: markers[markerId]!.position, zoom: 15),
       ),
     );
   }
-
 
   void updatePinOnMap() async {
     // create a new CameraPosition instance
@@ -145,8 +154,7 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
       zoom: CAMERA_ZOOM,
       tilt: CAMERA_TILT,
       bearing: CAMERA_BEARING,
-      target: LatLng(driveLat,
-          driveLng),
+      target: LatLng(driveLat, driveLng),
     );
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(cPosition));
@@ -154,28 +162,36 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
     // that a widget update is due
     setState(() {
       // updated position
-      var pinPosition = LatLng(driveLat,
-          driveLng);
-
+      var pinPosition = LatLng(driveLat, driveLng);
+      if (widget.model != null &&
+          widget.model!.start_time != null &&
+          widget.model!.start_time != "") {
+        List<String> calTime = widget.model!.start_time!.split(":");
+        DateTime firstTime = DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day, int.parse(calTime[0]), int.parse(calTime[1]));
+        print(calTime.toString());
+        time =
+            "00:" + DateTime.now().difference(firstTime).inMinutes.toString();
+      }
       // the trick is to remove the marker (by id)
       // and add it again at the updated location
-      _markers.removeWhere(
-              (m) => m.markerId.value == 'drivePin');
+      _markers.removeWhere((m) => m.markerId.value == 'drivePin');
       _markers.add(Marker(
           markerId: MarkerId('drivePin'),
           position: pinPosition, // updated position
-          icon: driverIcon!
-      ));
+          icon: driverIcon!));
     });
   }
+
   void setSourceAndDestinationIcons() async {
     sourceIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5), 'assets/driving_pin.png');
-    if(widget.live){
-      if(widget.carType == "1") {
+    if (widget.live) {
+      if (widget.carType == "1") {
         driverIcon = await BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(devicePixelRatio: 0.2), 'assets/cars/map_car.png');
-      }else {
+            ImageConfiguration(devicePixelRatio: 0.2),
+            'assets/cars/map_car.png');
+      } else {
         driverIcon = await BitmapDescriptor.fromAssetImage(
             ImageConfiguration(devicePixelRatio: 2.5), 'assets/driving.png');
       }
@@ -184,11 +200,11 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
     destinationIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5),
         'assets/destination_map_marker.png');
-    if(widget.status){
+    if (widget.status) {
       setState(() {
         SOURCE_LOCATION = widget.SOURCE_LOCATION;
         DEST_LOCATION = widget.DEST_LOCATION;
-        if(!widget.live){
+        if (!widget.live) {
           setPolylines();
         }
       });
@@ -198,10 +214,10 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
   @override
   void dispose() {
     // TODO: implement dispose
-    if(widget.live)
-    timer!.cancel();
+    if (widget.live) timer!.cancel();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     CameraPosition initialLocation = CameraPosition(
@@ -218,59 +234,56 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
         polylines: _polylines,
         mapType: MapType.normal,
         initialCameraPosition: initialLocation,
-        onMapCreated: onMapCreated
-    );
+        onMapCreated: onMapCreated);
   }
 
-  void onMapCreated(GoogleMapController controller) async{
-   // controller.setMapStyle(Utils.mapStyles);
+  void onMapCreated(GoogleMapController controller) async {
+    // controller.setMapStyle(Utils.mapStyles);
     _controller.complete(controller);
     var nLat, nLon, sLat, sLon;
-  if(widget.status) {
-    SOURCE_LOCATION = widget.SOURCE_LOCATION;
-    DEST_LOCATION = widget.DEST_LOCATION;
-    if (DEST_LOCATION!.latitude <= SOURCE_LOCATION!.latitude) {
-      sLat = DEST_LOCATION!.latitude;
-      nLat = SOURCE_LOCATION!.latitude;
-    } else {
-      sLat = SOURCE_LOCATION!.latitude;
-      nLat = DEST_LOCATION!.latitude;
+    if (widget.status) {
+      SOURCE_LOCATION = widget.SOURCE_LOCATION;
+      DEST_LOCATION = widget.DEST_LOCATION;
+      if (DEST_LOCATION!.latitude <= SOURCE_LOCATION!.latitude) {
+        sLat = DEST_LOCATION!.latitude;
+        nLat = SOURCE_LOCATION!.latitude;
+      } else {
+        sLat = SOURCE_LOCATION!.latitude;
+        nLat = DEST_LOCATION!.latitude;
+      }
+      if (DEST_LOCATION!.longitude <= SOURCE_LOCATION!.longitude) {
+        sLon = DEST_LOCATION!.longitude;
+        nLon = SOURCE_LOCATION!.longitude;
+      } else {
+        sLon = SOURCE_LOCATION!.longitude;
+        nLon = DEST_LOCATION!.longitude;
+      }
+      LatLngBounds bound = LatLngBounds(
+          southwest: LatLng(sLat, sLon), northeast: LatLng(nLat, nLon));
+      CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 150);
+      controller.animateCamera(u2).then((void v) {});
     }
-    if (DEST_LOCATION!.longitude <= SOURCE_LOCATION!.longitude) {
-      sLon = DEST_LOCATION!.longitude;
-      nLon = SOURCE_LOCATION!.longitude;
-    } else {
-      sLon = SOURCE_LOCATION!.longitude;
-      nLon = DEST_LOCATION!.longitude;
-    }
-    LatLngBounds bound =
-    LatLngBounds(southwest: LatLng(sLat, sLon), northeast: LatLng(nLat, nLon));
-    CameraUpdate u2 = CameraUpdate.newLatLngBounds(bound, 150);
-    controller.animateCamera(u2).then((void v) {});
-  }
-    if(widget.status){
+    if (widget.status) {
       setMapPins();
       //setPolylines();
     }
   }
 
-  void setMapPins() async{
+  void setMapPins() async {
     setState(() {
       // source pin
       _markers.add(Marker(
           markerId: MarkerId('sourcePin'),
           position: SOURCE_LOCATION!,
           infoWindow: InfoWindow(
-              title: "Pickup Location",
+            title: "Pickup Location",
             snippet: widget.pick,
           ),
           icon: sourceIcon!));
-      if(widget.live){
+      if (widget.live) {
         _markers.add(Marker(
             markerId: MarkerId('drivePin'),
-            infoWindow: InfoWindow(
-              title: "Driver Location"
-            ),
+            infoWindow: InfoWindow(title: "Driver Location"),
             position: SOURCE_LOCATION!,
             icon: driverIcon!));
       }
@@ -280,15 +293,16 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
           markerId: MarkerId('destPin'),
           position: DEST_LOCATION!,
           infoWindow: InfoWindow(
-              title: "Destination Location",
+            title: "Destination Location",
             snippet: widget.dest,
           ),
           icon: destinationIcon!));
     });
-    if(widget.driveList.length>0) {
+    if (widget.driveList.length > 0) {
       for (int i = 0; i < widget.driveList.length; i++) {
-        if(widget.carType!=null&&widget.carType ==widget.driveList[i].car_type ){
-          print("check1"+widget.carType.toString());
+        if (widget.carType != null &&
+            widget.carType == widget.driveList[i].car_type) {
+          print("check1" + widget.carType.toString());
           var markerIdVal = markers.length + 1;
           String mar = (widget.driveList[i].id).toString();
           print(widget.driveList[i].latitude.toString());
@@ -296,12 +310,10 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
           latLng = LatLng(double.parse(widget.driveList[i].latitude),
               double.parse(widget.driveList[i].longitude));
           Uint8List markerIcon;
-          if(widget.carType=="1"){
-            markerIcon =
-            await getBytesFromAsset('assets/cars/car1.png', 100);
-          }else{
-            markerIcon =
-            await getBytesFromAsset('assets/cars/car2.png', 50);
+          if (widget.carType == "1") {
+            markerIcon = await getBytesFromAsset('assets/cars/car1.png', 100);
+          } else {
+            markerIcon = await getBytesFromAsset('assets/cars/car2.png', 50);
           }
           final MarkerId markerId = MarkerId(mar);
           final Marker marker = Marker(
@@ -314,25 +326,25 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
           });
           print(markerId.toString() + "\n" + marker.toString());
           print(markers.length);
-        }else{
-          print("check2"+widget.carType.toString());
+        } else {
+          print("check2" + widget.carType.toString());
         }
-
       }
     }
   }
 
   setPolylines() async {
     _polylines.clear();
-    if(widget.status1!=null&&widget.status1=="1"&&driveLat!=0&&widget.live)  {
+    if (widget.status1 != null &&
+        widget.status1 == "1" &&
+        driveLat != 0 &&
+        widget.live) {
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
           googleAPIKey,
           PointLatLng(driveLat, driveLng),
           PointLatLng(SOURCE_LOCATION!.latitude, SOURCE_LOCATION!.longitude),
-
           travelMode: TravelMode.driving,
-          optimizeWaypoints: true
-      );
+          optimizeWaypoints: true);
       print("${result.points} >>>>>>>>>>>>>>>>..");
       print("$SOURCE_LOCATION >>>>>>>>>>>>>>>>..");
       print("$DEST_LOCATION >>>>>>>>>>>>>>>>..");
@@ -343,7 +355,7 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
         result.points.forEach((PointLatLng point) {
           polylineCoordinates.add(LatLng(point.latitude, point.longitude));
         });
-      }else{
+      } else {
         print("Failed");
       }
       setState(() {
@@ -359,14 +371,13 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
         // end up showing up on the map
         _polylines.add(polyline);
       });
-    }else{
+    } else {
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
           googleAPIKey,
           PointLatLng(SOURCE_LOCATION!.latitude, SOURCE_LOCATION!.longitude),
           PointLatLng(DEST_LOCATION!.latitude, DEST_LOCATION!.longitude),
           travelMode: TravelMode.driving,
-          optimizeWaypoints: true
-      );
+          optimizeWaypoints: true);
       print("${result.points} >>>>>>>>>>>>>>>>..");
       print("$SOURCE_LOCATION >>>>>>>>>>>>>>>>..");
       print("$DEST_LOCATION >>>>>>>>>>>>>>>>..");
@@ -377,7 +388,7 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
         result.points.forEach((PointLatLng point) {
           polylineCoordinates.add(LatLng(point.latitude, point.longitude));
         });
-      }else{
+      } else {
         print("Failed");
       }
       setState(() {
@@ -394,7 +405,6 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin{
         _polylines.add(polyline);
       });
     }
-
   }
 }
 

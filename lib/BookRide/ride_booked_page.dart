@@ -25,6 +25,7 @@ import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'rate_ride_dialog.dart';
 import 'package:http/http.dart' as http;
+
 class RideBookedPage extends StatefulWidget {
   MyRideModel model;
 
@@ -33,7 +34,6 @@ class RideBookedPage extends StatefulWidget {
   @override
   _RideBookedPageState createState() => _RideBookedPageState();
 }
-
 
 class _RideBookedPageState extends State<RideBookedPage> {
   bool isOpened = false;
@@ -53,16 +53,14 @@ class _RideBookedPageState extends State<RideBookedPage> {
           "type": "User",
         };
         Map response = await apiBase.postAPICall(
-            Uri.parse(
-                baseUrl1+"payment/cancel_ride_reason"),
-            data);
+            Uri.parse(baseUrl1 + "payment/cancel_ride_reason"), data);
         print(response);
         print(response);
         bool status = true;
         String msg = response['message'];
         setSnackbar(msg, context);
         if (response['status']) {
-          for(var v in response['data']){
+          for (var v in response['data']) {
             setState(() {
               reasonList.add(new ReasonModel.fromJson(v));
             });
@@ -79,8 +77,15 @@ class _RideBookedPageState extends State<RideBookedPage> {
 
   String totalTime = "0".toString();
   String distance = "0".toString();
-  getTime1(lat1, lon1, lat2, lon2)async{
-    if(lat1!=""&&lat1!=null&&lon1!=""&&lon1!=null&&lat2!=""&&lat2!=null&&lon2!=""&&lon2!=null) {
+  getTime1(lat1, lon1, lat2, lon2) async {
+    if (lat1 != "" &&
+        lat1 != null &&
+        lon1 != "" &&
+        lon1 != null &&
+        lat2 != "" &&
+        lat2 != null &&
+        lon2 != "" &&
+        lon2 != null) {
       print("check1");
       http.Response response = await http.get(Uri.parse(
           "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${lat1},${lon1}&destinations=${lat2},${lon2}&key=AIzaSyBmUCtQ_DlYKSU_BV7JdiyoOu1i4ybe-z0"));
@@ -88,17 +93,19 @@ class _RideBookedPageState extends State<RideBookedPage> {
       Map res = jsonDecode(response.body);
       List<dynamic> data = res['rows'][0]['elements'];
       //  String totalTime = "0 Mins".toString();
-      if(response.body.contains("text")){
-        totalTime =(int.parse(data[0]['duration']['value'].toString())/60).round().toString();
-        distance = (double.parse(data[0]['distance']['value'].toString())/1000).toStringAsFixed(2);
+      if (response.body.contains("text")) {
+        totalTime = (int.parse(data[0]['duration']['value'].toString()) / 60)
+            .round()
+            .toString();
+        distance =
+            (double.parse(data[0]['distance']['value'].toString()) / 1000)
+                .toStringAsFixed(2);
       }
       print(totalTime);
       updateLocation(widget.model.bookingId.toString());
-    }else{
-
-    }
-
+    } else {}
   }
+
   double calculateDistance(lat1, lon1, lat2, lon2) {
     try {
       var p = 0.017453292519943295;
@@ -113,7 +120,10 @@ class _RideBookedPageState extends State<RideBookedPage> {
       return 0; // executed for errors of all types other than Exception
     }
   }
-  updateLocation(String bookingId,) async {
+
+  updateLocation(
+    String bookingId,
+  ) async {
     await App.init();
 
     isNetwork = await isNetworkAvailable();
@@ -124,7 +134,14 @@ class _RideBookedPageState extends State<RideBookedPage> {
           "user_id": curUserId,
           "drop_address": widget.model.dropAddress,
           "booking_id": bookingId,
-          "update_kilometer":widget.model.acceptReject=="6"?calculateDistance(double.parse(widget.model.latitude.toString()), double.parse(widget.model.longitude.toString()), driveLat, driveLng).toStringAsFixed(2):"0",
+          "update_kilometer": widget.model.acceptReject == "6"
+              ? calculateDistance(
+                      double.parse(widget.model.latitude.toString()),
+                      double.parse(widget.model.longitude.toString()),
+                      driveLat,
+                      driveLng)
+                  .toStringAsFixed(2)
+              : "0",
           "distance": distance,
           "drop_latitude": widget.model.dropLatitude,
           "drop_longitude": widget.model.dropLongitude,
@@ -134,10 +151,9 @@ class _RideBookedPageState extends State<RideBookedPage> {
         };
         print("this is our updated request **** ${data.toString()}");
         Map response = await apiBase.postAPICall(
-            Uri.parse(
-                baseUrl1+"Payment/update_change_location"),
-            data);
-        print("this is new updated response &&&&& ^^^^^^ ${response.toString()}");
+            Uri.parse(baseUrl1 + "Payment/update_change_location"), data);
+        print(
+            "this is new updated response &&&&& ^^^^^^ ${response.toString()}");
         print(response);
         setState(() {
           acceptStatus = false;
@@ -155,7 +171,8 @@ class _RideBookedPageState extends State<RideBookedPage> {
       setSnackbar(getTranslated(context, "NO_INTERNET")!, context);
     }
   }
-  cancelStatus(String bookingId,status1) async {
+
+  cancelStatus(String bookingId, status1) async {
     await App.init();
     isNetwork = await isNetworkAvailable();
     if (isNetwork) {
@@ -167,11 +184,10 @@ class _RideBookedPageState extends State<RideBookedPage> {
           "booking_id": bookingId,
           "reason": reasonList[indexReason].reason,
         };
-        print("this is our request @@ ${data.toString()} aand @@ ${baseUrl1}Payment/cancel_ride_point_to_point}");
+        print(
+            "this is our request @@ ${data.toString()} aand @@ ${baseUrl1}Payment/cancel_ride_point_to_point}");
         Map response = await apiBase.postAPICall(
-            Uri.parse(
-                baseUrl1+"Payment/cancel_ride_point_to_point"),
-            data);
+            Uri.parse(baseUrl1 + "Payment/cancel_ride_point_to_point"), data);
         print(response);
         print(response);
         setState(() {
@@ -182,7 +198,10 @@ class _RideBookedPageState extends State<RideBookedPage> {
         bool status = response['status'];
         setSnackbar(msg, context);
         if (status) {
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => SearchLocationPage()),
+              (route) => false);
         } else {}
       } on TimeoutException catch (_) {
         setSnackbar(getTranslated(context, "WRONG")!, context);
@@ -207,8 +226,10 @@ class _RideBookedPageState extends State<RideBookedPage> {
       });
       if (response['status']) {
         var v = response["data"];
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => RideBookedPage(MyRideModel.fromJson(v))));
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => RideBookedPage(MyRideModel.fromJson(v))));
         /* showConfirm(RidesModel(v['id'], v['user_id'], v['username'], v['uneaque_id'], v['purpose'], v['pickup_area'],
             v['pickup_date'], v['drop_area'], v['pickup_time'], v['area'], v['landmark'], v['pickup_address'], v['drop_address'],
             v['taxi_type'], v['departure_time'], v['departure_date'], v['return_date'], v['flight_number'], v['package'],
@@ -228,70 +249,99 @@ class _RideBookedPageState extends State<RideBookedPage> {
     }
   }
 
-  double lat= 0;
+  double lat = 0;
   double long = 0;
   @override
   void initState() {
     super.initState();
-    PushNotificationService pushNotificationService = new PushNotificationService(context: context, onResult: (result){
-      //if(mounted&&result=="yes")
-      print("result" + result);
-      if(result == "com"||result == "cancel"){
+    PushNotificationService pushNotificationService =
+        new PushNotificationService(
+            context: context,
+            onResult: (result) {
+              //if(mounted&&result=="yes")
+              print("result" + result);
+              if (result == "com" || result == "cancel") {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => FindingRidePage(
+                            LatLng(latitude, longitude),
+                            LatLng(
+                                double.parse(
+                                    widget.model.dropLatitude.toString()),
+                                double.parse(
+                                    widget.model.dropLongitude.toString())),
+                            widget.model.pickupAddress.toString(),
+                            widget.model.dropAddress.toString(),
+                            widget.model.paymentMedia.toString(),
+                            widget.model.bookingId.toString(),
+                            widget.model.amount.toString(),
+                            widget.model.km.toString())),
+                    (route) => false);
 
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>FindingRidePage( LatLng(latitude, longitude),
-            LatLng(double.parse(widget.model.dropLatitude.toString()), double.parse(widget.model.dropLongitude.toString())),
-            widget.model.pickupAddress.toString(), widget.model.dropAddress.toString(),
-            widget.model.paymentMedia.toString(), widget.model.bookingId.toString(),  widget.model.amount.toString(),  widget.model.km.toString())), (route) => false);
-
-        if(result == "com")
-        showDialog(context: context, builder: (context) => RateRideDialog(widget.model));
-      }else{
-        getCurrentInfo();
-      }
-    });
+                if (result == "com")
+                  showDialog(
+                      context: context,
+                      builder: (context) => RateRideDialog(widget.model));
+              } else {
+                getCurrentInfo();
+              }
+            });
     pushNotificationService.initialise();
 
     getReason();
-  /*  Future.delayed(Duration(seconds: 2), () {
+    /*  Future.delayed(Duration(seconds: 2), () {
         showDialog(context: context, builder: (context) => RateRideDialog(widget.model));
     });*/
   }
+
   int indexReason = 0;
   PersistentBottomSheetController? persistentBottomSheetController1;
   GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
-  showBottom1()async{
-    persistentBottomSheetController1 = await scaffoldKey.currentState!.showBottomSheet((context) {
+  showBottom1() async {
+    persistentBottomSheetController1 =
+        await scaffoldKey.currentState!.showBottomSheet((context) {
       return Container(
-        decoration: boxDecoration(radius: 0,showShadow: true,color: Colors.white),
+        decoration:
+            boxDecoration(radius: 0, showShadow: true, color: Colors.white),
         padding: EdgeInsets.all(getWidth(20)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             boxHeight(20),
-            text("${getTranslated(context, "SELECT_REASON")}",textColor: MyColorName.colorTextPrimary,fontSize: 12.sp,fontFamily: fontBold),
+            text("${getTranslated(context, "SELECT_REASON")}",
+                textColor: MyColorName.colorTextPrimary,
+                fontSize: 12.sp,
+                fontFamily: fontBold),
             boxHeight(20),
-            reasonList.length>0?
-            Container(
-              child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: reasonList.length,
-                  itemBuilder:(context, index) {
-                    return  InkWell(
-                      onTap: (){
-                        persistentBottomSheetController1!.setState!((){
-                          indexReason = index;
-                        });
-                        // Navigator.pop(context);
-                      },
-                      child: Container(
-                        color: indexReason==index?MyColorName.primaryLite.withOpacity(0.2):Colors.white,
-                        padding: EdgeInsets.all(getWidth(10)),
-                        child: text(reasonList[index].reason.toString(),textColor: MyColorName.colorTextPrimary,fontSize: 10.sp,fontFamily: fontMedium,isLongText: true),
-                      ),
-                    );
-                  }),
-            ):
-            SizedBox(),
+            reasonList.length > 0
+                ? Container(
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: reasonList.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            onTap: () {
+                              persistentBottomSheetController1!.setState!(() {
+                                indexReason = index;
+                              });
+                              // Navigator.pop(context);
+                            },
+                            child: Container(
+                              color: indexReason == index
+                                  ? MyColorName.primaryLite.withOpacity(0.2)
+                                  : Colors.white,
+                              padding: EdgeInsets.all(getWidth(10)),
+                              child: text(reasonList[index].reason.toString(),
+                                  textColor: MyColorName.colorTextPrimary,
+                                  fontSize: 10.sp,
+                                  fontFamily: fontMedium,
+                                  isLongText: true),
+                            ),
+                          );
+                        }),
+                  )
+                : SizedBox(),
             boxHeight(20),
             Row(
               children: [
@@ -299,21 +349,22 @@ class _RideBookedPageState extends State<RideBookedPage> {
                   onTap: () {
                     Navigator.pop(context);
                   },
-                  child: !acceptStatus?Container(
-                    width: 35.w,
-                    height: 5.h,
-                    margin: EdgeInsets.all(getWidth(14)),
-                    decoration: boxDecoration(
-                        radius: 5,
-                        bgColor: Theme.of(context)
-                            .primaryColor),
-                    child: Center(
-                        child: text(getTranslated(context, "BACK")!,
-                            fontFamily: fontMedium,
-                            fontSize: 10.sp,
-                            isCentered: true,
-                            textColor: Colors.white)),
-                  ):CircularProgressIndicator(),
+                  child: !acceptStatus
+                      ? Container(
+                          width: 35.w,
+                          height: 5.h,
+                          margin: EdgeInsets.all(getWidth(14)),
+                          decoration: boxDecoration(
+                              radius: 5,
+                              bgColor: Theme.of(context).primaryColor),
+                          child: Center(
+                              child: text(getTranslated(context, "BACK")!,
+                                  fontFamily: fontMedium,
+                                  fontSize: 10.sp,
+                                  isCentered: true,
+                                  textColor: Colors.white)),
+                        )
+                      : CircularProgressIndicator(),
                 ),
                 boxWidth(10),
                 InkWell(
@@ -323,31 +374,32 @@ class _RideBookedPageState extends State<RideBookedPage> {
                     });
                     cancelStatus(widget.model.bookingId!, "5");
                   },
-                  child: !acceptStatus?Container(
-                    width: 35.w,
-                    height: 5.h,
-                    margin: EdgeInsets.all(getWidth(14)),
-                    decoration: boxDecoration(
-                        radius: 5,
-                        bgColor: Theme.of(context)
-                            .primaryColor),
-                    child: Center(
-                        child: text(getTranslated(context, "CONTINUE")!,
-                            fontFamily: fontMedium,
-                            fontSize: 10.sp,
-                            isCentered: true,
-                            textColor: Colors.white)),
-                  ):CircularProgressIndicator(),
+                  child: !acceptStatus
+                      ? Container(
+                          width: 35.w,
+                          height: 5.h,
+                          margin: EdgeInsets.all(getWidth(14)),
+                          decoration: boxDecoration(
+                              radius: 5,
+                              bgColor: Theme.of(context).primaryColor),
+                          child: Center(
+                              child: text(getTranslated(context, "CONTINUE")!,
+                                  fontFamily: fontMedium,
+                                  fontSize: 10.sp,
+                                  isCentered: true,
+                                  textColor: Colors.white)),
+                        )
+                      : CircularProgressIndicator(),
                 ),
               ],
             ),
             boxHeight(40),
           ],
         ),
-
       );
     });
   }
+
   bool loading = false;
   @override
   Widget build(BuildContext context) {
@@ -356,127 +408,160 @@ class _RideBookedPageState extends State<RideBookedPage> {
       Scaffold(
         key: scaffoldKey,
         backgroundColor: Colors.white,
-      //  appBar: AppBar(),
+        //  appBar: AppBar(),
         body: SafeArea(
-          child:   widget.model.latitude!=null&&widget.model.latitude!=""?Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              !loading?MapPage(
-                true,
-                driveList: [],
-                live: true,
-                pick: widget.model.pickupAddress.toString(),
-                dest: widget.model.dropAddress.toString(),
-                id: widget.model.driverId,
-                carType: widget.model.taxiType=="Bike"?"1":"2",
-                status1 :widget.model.acceptReject,
-                SOURCE_LOCATION: LatLng(double.parse(widget.model.latitude!),double.parse(widget.model.longitude!)),
-                // DEST_LOCATION: LatLng(double.parse(widget.model.dropLatitude.toString()),double.parse(widget.model.dropLongitude.toString())),
-              ):Center(child: CircularProgressIndicator(),),
-              Positioned(
-                top: 0,
-                left: 0,
-                child: widget.model.acceptReject=="1"?Container(
-                  padding: EdgeInsets.all(getWidth(10)),
-                  color: Colors.white,
-                  child: AnimatedTextKit(
-                    animatedTexts: [
-                      ColorizeAnimatedText(
-                        "${getTranslated(context, "PICKUP_TIME")} - ${((double.parse(widget.model.km!)/25)*60).round()} min",
-                        textStyle: colorizeTextStyle,
-                        colors: colorizeColors,
-                      ),
-                    ],
-                    pause: Duration(milliseconds: 100),
-                    isRepeatingAnimation: true,
-                    totalRepeatCount: 100,
-                    onTap: () {
-                      print("Tap Event");
-                    },
-                  ),
-                ):SizedBox(),
-              ),
-              widget.model.taxiId!=null?Align(
-                alignment: Alignment.topRight,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlacePicker(
-                          apiKey: Platform.isAndroid
-                              ? "AIzaSyBmUCtQ_DlYKSU_BV7JdiyoOu1i4ybe-z0"
-                              : "AIzaSyBmUCtQ_DlYKSU_BV7JdiyoOu1i4ybe-z0",
-                          onPlacePicked: (result) {
-                            print(result.formattedAddress);
-                            setState(() {
-                              widget.model.dropAddress =
-                                  result.formattedAddress.toString();
-                              widget.model.dropLatitude =
-                                  result.geometry!.location.lat.toString();
-                              widget.model.dropLongitude =
-                                  result.geometry!.location.lng.toString();
-                              change = true;
-                            });
-                            Navigator.of(context).pop();
-                            getTime1(widget.model.latitude, widget.model.longitude, widget.model.dropLatitude, widget.model.dropLongitude);
-                          },
-                          initialPosition: LatLng(double.parse(widget.model.dropLatitude.toString()), double.parse( widget.model.dropLongitude.toString())),
-                       //   useCurrentLocation: true,
+          child: widget.model.latitude != null && widget.model.latitude != ""
+              ? Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    !loading
+                        ? MapPage(
+                            true,
+                            driveList: [],
+                            live: true,
+                            pick: widget.model.pickupAddress.toString(),
+                            dest: widget.model.dropAddress.toString(),
+                            model: widget.model.dropAddress == null ||
+                                    widget.model.dropAddress == ""
+                                ? widget.model
+                                : null,
+                            id: widget.model.driverId,
+                            carType:
+                                widget.model.taxiType == "Bike" ? "1" : "2",
+                            status1: widget.model.acceptReject,
+                            SOURCE_LOCATION: LatLng(
+                                double.parse(widget.model.latitude!),
+                                double.parse(widget.model.longitude!)),
+                            // DEST_LOCATION: LatLng(double.parse(widget.model.dropLatitude.toString()),double.parse(widget.model.dropLongitude.toString())),
+                          )
+                        : Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: widget.model.acceptReject == "1"
+                          ? Container(
+                              padding: EdgeInsets.all(getWidth(10)),
+                              color: Colors.white,
+                              child: AnimatedTextKit(
+                                animatedTexts: [
+                                  ColorizeAnimatedText(
+                                    "${getTranslated(context, "PICKUP_TIME")} - ${((double.parse(widget.model.km!) / 25) * 60).round()} min",
+                                    textStyle: colorizeTextStyle,
+                                    colors: colorizeColors,
+                                  ),
+                                ],
+                                pause: Duration(milliseconds: 100),
+                                isRepeatingAnimation: true,
+                                totalRepeatCount: 100,
+                                onTap: () {
+                                  print("Tap Event");
+                                },
+                              ),
+                            )
+                          : SizedBox(),
+                    ),
+                    widget.model.taxiId != null
+                        ? Align(
+                            alignment: Alignment.topRight,
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PlacePicker(
+                                      apiKey: Platform.isAndroid
+                                          ? "AIzaSyBmUCtQ_DlYKSU_BV7JdiyoOu1i4ybe-z0"
+                                          : "AIzaSyBmUCtQ_DlYKSU_BV7JdiyoOu1i4ybe-z0",
+                                      onPlacePicked: (result) {
+                                        print(result.formattedAddress);
+                                        setState(() {
+                                          widget.model.dropAddress = result
+                                              .formattedAddress
+                                              .toString();
+                                          widget.model.dropLatitude = result
+                                              .geometry!.location.lat
+                                              .toString();
+                                          widget.model.dropLongitude = result
+                                              .geometry!.location.lng
+                                              .toString();
+                                          change = true;
+                                        });
+                                        Navigator.of(context).pop();
+                                        getTime1(
+                                            widget.model.latitude,
+                                            widget.model.longitude,
+                                            widget.model.dropLatitude,
+                                            widget.model.dropLongitude);
+                                      },
+                                      initialPosition: LatLng(
+                                          double.parse(widget.model.dropLatitude
+                                              .toString()),
+                                          double.parse(widget
+                                              .model.dropLongitude
+                                              .toString())),
+                                      //   useCurrentLocation: true,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: 40.w,
+                                height: 5.h,
+                                margin: EdgeInsets.all(getWidth(5)),
+                                decoration: boxDecoration(
+                                    radius: 5,
+                                    bgColor: Theme.of(context).primaryColor),
+                                child: Center(
+                                    child: !change
+                                        ? text(
+                                            getTranslated(
+                                                context, "CHANGE_DROP")!,
+                                            fontFamily: fontMedium,
+                                            fontSize: 8.sp,
+                                            isCentered: true,
+                                            textColor: Colors.white)
+                                        : CircularProgressIndicator(
+                                            color: Colors.white,
+                                          )),
+                              ),
+                            ),
+                          )
+                        : SizedBox(),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: Row(
+                          children: [
+                            buildFlatButton(Icons.call, 'CALL_NOW', () {
+                              launch("tel://${widget.model.driverContact}");
+                            }),
+                            SizedBox(width: 10),
+                            buildFlatButton(Icons.close, 'CANCEL', () {
+                              showBottom1();
+                            }),
+                            SizedBox(width: 10),
+                            buildFlatButton(
+                                isOpened
+                                    ? Icons.keyboard_arrow_down
+                                    : Icons.keyboard_arrow_up,
+                                isOpened ? 'LESS' : 'MORE', () {
+                              setState(() {
+                                isOpened = !isOpened;
+                              });
+                            }),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                  child:Container(
-                    width: 40.w,
-                    height: 5.h,
-                    margin: EdgeInsets.all(getWidth(5)),
-                    decoration: boxDecoration(
-                        radius: 5,
-                        bgColor: Theme.of(context)
-                            .primaryColor),
-                    child: Center(
-                        child: !change?text(getTranslated(context, "CHANGE_DROP")!,
-                            fontFamily: fontMedium,
-                            fontSize: 8.sp,
-                            isCentered: true,
-                            textColor: Colors.white):
-                      CircularProgressIndicator(color: Colors.white,)
-                    ),
-                  ),
-                ),
-              ):SizedBox(),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
-                    children: [
-                      buildFlatButton(Icons.call, 'CALL_NOW',(){
-                        launch("tel://${widget.model.driverContact}");
-                      }),
-                      SizedBox(width: 10),
-                      buildFlatButton(Icons.close, 'CANCEL',(){
-                        showBottom1();
-                      }),
-                      SizedBox(width: 10),
-                      buildFlatButton(
-                          isOpened
-                              ? Icons.keyboard_arrow_down
-                              : Icons.keyboard_arrow_up,
-                          isOpened ? 'LESS' : 'MORE', () {
-                        setState(() {
-                          isOpened = !isOpened;
-                        });
-                      }),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ):Center(child: CircularProgressIndicator()),
+                    )
+                  ],
+                )
+              : Center(child: CircularProgressIndicator()),
         ),
-        bottomNavigationBar:  SingleChildScrollView(
+        bottomNavigationBar: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -522,7 +607,11 @@ class _RideBookedPageState extends State<RideBookedPage> {
               //     },
               //   ),
               // ),
-              Text( "OTP : ${widget.model.bookingOtp}",),
+              Text(
+                widget.model.acceptReject == "6"
+                    ? "Complete OTP : ${widget.model.bookingOtp}"
+                    : "Start OTP : ${widget.model.bookingOtp}",
+              ),
 
               GestureDetector(
                 onVerticalDragDown: (details) {
@@ -547,7 +636,7 @@ class _RideBookedPageState extends State<RideBookedPage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: Image.network(
-                            imagePath+ widget.model.driverImage.toString(),
+                            imagePath + widget.model.driverImage.toString(),
                             height: 72,
                             width: 72,
                           ),
@@ -559,8 +648,8 @@ class _RideBookedPageState extends State<RideBookedPage> {
                         children: [
                           Text(
                             '${widget.model.driverName}',
-                            style: theme.textTheme.headline6!.copyWith(
-                                fontSize: 18, letterSpacing: 1.2),
+                            style: theme.textTheme.headline6!
+                                .copyWith(fontSize: 18, letterSpacing: 1.2),
                           ),
                           Text(
                             '${getTranslated(context, "TRIP_ID")} - ${widget.model.uneaqueId.toString()}',
@@ -569,10 +658,10 @@ class _RideBookedPageState extends State<RideBookedPage> {
                           Spacer(flex: 2),
                           Text(
                             '${widget.model.taxiType}(${widget.model.car_no})',
-                            style: theme.textTheme.caption!
-                                .copyWith(fontSize: 12),
+                            style:
+                                theme.textTheme.caption!.copyWith(fontSize: 12),
                           ),
-                         /* Spacer(),
+                          /* Spacer(),
                           Text(
                             '${widget.model.car_no}',
                             style: theme.textTheme.bodyText1!
@@ -584,42 +673,50 @@ class _RideBookedPageState extends State<RideBookedPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          widget.model.rating.toString()!="null"?Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              color: AppTheme.ratingsColor,
-                            ),
-                            child: Row(
-                              children: [
-                                Text(
-                                  widget.model.rating.toString(),
-                                  style: theme.textTheme.bodyText1!
-                                      .copyWith(fontSize: 12),
-                                ),
-                                SizedBox(width: 4),
-                                Icon(
-                                  Icons.star,
-                                  color: AppTheme.starColor,
-                                  size: 10,
+                          widget.model.rating.toString() != "null"
+                              ? Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    color: AppTheme.ratingsColor,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        widget.model.rating.toString(),
+                                        style: theme.textTheme.bodyText1!
+                                            .copyWith(fontSize: 12),
+                                      ),
+                                      SizedBox(width: 4),
+                                      Icon(
+                                        Icons.star,
+                                        color: AppTheme.starColor,
+                                        size: 10,
+                                      )
+                                    ],
+                                  ),
                                 )
-                              ],
-                            ),
-                          ):SizedBox(),
+                              : SizedBox(),
                           Spacer(flex: 2),
                           Text(
-                            getTranslated(context,'CURRENT_STATUS')!,
+                            getTranslated(context, 'CURRENT_STATUS')!,
                             style: theme.textTheme.caption,
                           ),
                           Spacer(),
                           Text(
-                            widget.model.acceptReject=="1"?"Arriving":widget.model.acceptReject=="6"?"Started":"Completed",
-                            style: theme.textTheme.bodyText1!
-                                .copyWith(
-                              fontSize: 13.5,
-                              color: widget.model.acceptReject=="1"?Colors.orange:widget.model.acceptReject=="6"?Colors.brown:Colors.green
-                            ),
+                            widget.model.acceptReject == "1"
+                                ? "Arriving"
+                                : widget.model.acceptReject == "6"
+                                    ? "Started"
+                                    : "Completed",
+                            style: theme.textTheme.bodyText1!.copyWith(
+                                fontSize: 13.5,
+                                color: widget.model.acceptReject == "1"
+                                    ? Colors.orange
+                                    : widget.model.acceptReject == "6"
+                                        ? Colors.brown
+                                        : Colors.green),
                           ),
                         ],
                       ),
@@ -627,8 +724,8 @@ class _RideBookedPageState extends State<RideBookedPage> {
                   ),
                 ),
               ),
-              isOpened?Details(widget.model):SizedBox(),
-             /* AnimatedContainer(
+              isOpened ? Details(widget.model) : SizedBox(),
+              /* AnimatedContainer(
                 duration: Duration(milliseconds: 300),
                 height: 72,
                 color:
@@ -643,6 +740,7 @@ class _RideBookedPageState extends State<RideBookedPage> {
       slideCurve: Curves.linearToEaseOut,
     );
   }
+
   final colorizeColors = [
     Colors.purple,
     Colors.blue,
@@ -666,10 +764,10 @@ class _RideBookedPageState extends State<RideBookedPage> {
         icon: Icon(
           icon,
           size: 17,
-          color:Colors.black,
+          color: Colors.black,
         ),
         label: Text(
-          getTranslated(context,text)!,
+          getTranslated(context, text)!,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context)
               .textTheme
@@ -682,7 +780,6 @@ class _RideBookedPageState extends State<RideBookedPage> {
 }
 
 class Details extends StatefulWidget {
-
   MyRideModel model;
   Details(this.model);
 
@@ -707,16 +804,17 @@ class _DetailsState extends State<Details> {
               children: [
                 ListTile(
                   title: Text(
-                    getTranslated(context,'RIDE_INFO')!,
+                    getTranslated(context, 'RIDE_INFO')!,
                     style: theme.textTheme.headline6!
                         .copyWith(color: theme.hintColor, fontSize: 16.5),
                   ),
-                  trailing:
-                  widget.model.km == null || widget.model.km == '' || widget.model.km == '0'?
-                  SizedBox.shrink():
-                  Text('${widget.model.km} km',
-                      style:
-                          theme.textTheme.headline6!.copyWith(fontSize: 16.5)),
+                  trailing: widget.model.km == null ||
+                          widget.model.km == '' ||
+                          widget.model.km == '0'
+                      ? SizedBox.shrink()
+                      : Text('${widget.model.km} km',
+                          style: theme.textTheme.headline6!
+                              .copyWith(fontSize: 16.5)),
                 ),
                 ListTile(
                   horizontalTitleGap: 0,
@@ -730,20 +828,22 @@ class _DetailsState extends State<Details> {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                   ),
                 ),
-                widget.model.dropAddress == null || widget.model.dropAddress =='' ?
-                    SizedBox.shrink()
-               :  ListTile(
-                  horizontalTitleGap: 0,
-                  leading: Icon(
-                    Icons.navigation,
-                    color: theme.primaryColor,
-                    size: 20,
-                  ),
-                  title: Text(
-                    '${widget.model.dropAddress}',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                  ),
-                ),
+                widget.model.dropAddress == null ||
+                        widget.model.dropAddress == ''
+                    ? SizedBox.shrink()
+                    : ListTile(
+                        horizontalTitleGap: 0,
+                        leading: Icon(
+                          Icons.navigation,
+                          color: theme.primaryColor,
+                          size: 20,
+                        ),
+                        title: Text(
+                          '${widget.model.dropAddress}',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w500),
+                        ),
+                      ),
               ],
             ),
           ),
@@ -755,127 +855,156 @@ class _DetailsState extends State<Details> {
                 borderRadius: BorderRadius.circular(16)),
             child: Row(
               children: [
-                widget.model.transaction == null || widget.model.transaction == ''?
-                    SizedBox.shrink()
-                :buildRowItem(theme, 'PAYMENT_VIA',
-                    '${widget.model.transaction}', Icons.account_balance_wallet),
+                widget.model.transaction == null ||
+                        widget.model.transaction == ''
+                    ? SizedBox.shrink()
+                    : buildRowItem(
+                        theme,
+                        'PAYMENT_VIA',
+                        '${widget.model.transaction}',
+                        Icons.account_balance_wallet),
                 Spacer(),
-                buildRowItem(theme, 'RIDE_FARE', '\u{20B9} ${widget.model.amount}',
+                buildRowItem(
+                    theme,
+                    'RIDE_FARE',
+                    '\u{20B9} ${widget.model.amount}',
                     Icons.account_balance_wallet),
                 Spacer(),
-                buildRowItem(theme, 'RIDE_TYPE',
-                    '${widget.model.bookingType }', Icons.drive_eta),
+                buildRowItem(theme, 'RIDE_TYPE', '${widget.model.bookingType}',
+                    Icons.drive_eta),
               ],
             ),
           ),
-          widget.model.acceptReject=="3"?Container(
-            padding: EdgeInsets.all(getWidth(15)),
-            child: Column(
-              children: [
-                double.parse(widget.model.gstAmount.toString())>0?Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    text("${getTranslated(context, "SUB_TOTAL")} : ",
-                        fontSize: 10.sp,
-                        fontFamily: fontMedium,
-                        textColor: Colors.black),
-                    text(
-                        "₹" + (double.parse(widget.model.amount.toString())-double.parse(widget.model.gstAmount.toString())-double.parse(widget.model.surgeAmount.toString())).toStringAsFixed(2),
-                        fontSize: 10.sp,
-                        fontFamily: fontMedium,
-                        textColor: Colors.black),
-                  ],
-                ):SizedBox(),
-                double.parse(widget.model.baseFare.toString())>0?Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    text("${getTranslated(context, "BASE_FARE")} : ",
-                        fontSize: 10.sp,
-                        fontFamily: fontRegular,
-                        textColor: Colors.black),
-                    text(
-                        "₹" + widget.model.baseFare.toString(),
-                        fontSize: 10.sp,
-                        fontFamily: fontRegular,
-                        textColor: Colors.black),
-                  ],
-                ):SizedBox(),
-                double.parse(widget.model.km.toString())>=2&&double.parse(widget.model.ratePerKm.toString())>0?Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    text("${widget.model.km.toString()} ${getTranslated(context, "KILOMETERS")} : ",
-                        fontSize: 10.sp,
-                        fontFamily: fontRegular,
-                        textColor: Colors.black),
-                    text(
-                        "₹" + widget.model.ratePerKm.toString(),
-                        fontSize: 10.sp,
-                        fontFamily: fontRegular,
-                        textColor: Colors.black),
-                  ],
-                ):SizedBox(),
-                double.parse(widget.model.timeAmount.toString())>0?Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    text("${widget.model.totalTime.toString()} ${getTranslated(context, "MINUTES")} : ",
-                        fontSize: 10.sp,
-                        fontFamily: fontRegular,
-                        textColor: Colors.black),
-                    text(
-                        "₹" + widget.model.timeAmount.toString(),
-                        fontSize: 10.sp,
-                        fontFamily: fontRegular,
-                        textColor: Colors.black),
-                  ],
-                ):SizedBox(),
-                double.parse(widget.model.gstAmount.toString())>0?Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    text("${getTranslated(context, "TAXES")} : ",
-                        fontSize: 10.sp,
-                        fontFamily: fontMedium,
-                        textColor: Colors.black),
-                    text(
-                        "₹" + widget.model.gstAmount.toString(),
-                        fontSize: 10.sp,
-                        fontFamily: fontMedium,
-                        textColor: Colors.black),
-                  ],
-                ):SizedBox(),
-
-                double.parse(widget.model.surgeAmount.toString())>0?Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    text("${getTranslated(context, "SURGE")} : ",
-                        fontSize: 10.sp,
-                        fontFamily: fontMedium,
-                        textColor: Colors.black),
-                    text(
-                        "₹" + widget.model.surgeAmount.toString(),
-                        fontSize: 10.sp,
-                        fontFamily: fontMedium,
-                        textColor: Colors.black),
-                  ],
-                ):SizedBox(),
-                Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    text("${getTranslated(context, "TOTAL")} : ",
-                        fontSize: 10.sp,
-                        fontFamily: fontMedium,
-                        textColor: Colors.black),
-                    text(
-                        "₹" + "${widget.model.amount}",
-                        fontSize: 10.sp,
-                        fontFamily: fontMedium,
-                        textColor: Colors.black),
-                  ],
-                ),
-                boxHeight(10),
-              ],
-            ),
-          ):SizedBox(),
+          widget.model.acceptReject == "3"
+              ? Container(
+                  padding: EdgeInsets.all(getWidth(15)),
+                  child: Column(
+                    children: [
+                      double.parse(widget.model.gstAmount.toString()) > 0
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                text(
+                                    "${getTranslated(context, "SUB_TOTAL")} : ",
+                                    fontSize: 10.sp,
+                                    fontFamily: fontMedium,
+                                    textColor: Colors.black),
+                                text(
+                                    "₹" +
+                                        (double.parse(widget.model.amount
+                                                    .toString()) -
+                                                double.parse(widget
+                                                    .model.gstAmount
+                                                    .toString()) -
+                                                double.parse(widget
+                                                    .model.surgeAmount
+                                                    .toString()))
+                                            .toStringAsFixed(2),
+                                    fontSize: 10.sp,
+                                    fontFamily: fontMedium,
+                                    textColor: Colors.black),
+                              ],
+                            )
+                          : SizedBox(),
+                      double.parse(widget.model.baseFare.toString()) > 0
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                text(
+                                    "${getTranslated(context, "BASE_FARE")} : ",
+                                    fontSize: 10.sp,
+                                    fontFamily: fontRegular,
+                                    textColor: Colors.black),
+                                text("₹" + widget.model.baseFare.toString(),
+                                    fontSize: 10.sp,
+                                    fontFamily: fontRegular,
+                                    textColor: Colors.black),
+                              ],
+                            )
+                          : SizedBox(),
+                      double.parse(widget.model.km.toString()) >= 2 &&
+                              double.parse(widget.model.ratePerKm.toString()) >
+                                  0
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                text(
+                                    "${widget.model.km.toString()} ${getTranslated(context, "KILOMETERS")} : ",
+                                    fontSize: 10.sp,
+                                    fontFamily: fontRegular,
+                                    textColor: Colors.black),
+                                text("₹" + widget.model.ratePerKm.toString(),
+                                    fontSize: 10.sp,
+                                    fontFamily: fontRegular,
+                                    textColor: Colors.black),
+                              ],
+                            )
+                          : SizedBox(),
+                      double.parse(widget.model.timeAmount.toString()) > 0
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                text(
+                                    "${widget.model.totalTime.toString()} ${getTranslated(context, "MINUTES")} : ",
+                                    fontSize: 10.sp,
+                                    fontFamily: fontRegular,
+                                    textColor: Colors.black),
+                                text("₹" + widget.model.timeAmount.toString(),
+                                    fontSize: 10.sp,
+                                    fontFamily: fontRegular,
+                                    textColor: Colors.black),
+                              ],
+                            )
+                          : SizedBox(),
+                      double.parse(widget.model.gstAmount.toString()) > 0
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                text("${getTranslated(context, "TAXES")} : ",
+                                    fontSize: 10.sp,
+                                    fontFamily: fontMedium,
+                                    textColor: Colors.black),
+                                text("₹" + widget.model.gstAmount.toString(),
+                                    fontSize: 10.sp,
+                                    fontFamily: fontMedium,
+                                    textColor: Colors.black),
+                              ],
+                            )
+                          : SizedBox(),
+                      double.parse(widget.model.surgeAmount.toString()) > 0
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                text("${getTranslated(context, "SURGE")} : ",
+                                    fontSize: 10.sp,
+                                    fontFamily: fontMedium,
+                                    textColor: Colors.black),
+                                text("₹" + widget.model.surgeAmount.toString(),
+                                    fontSize: 10.sp,
+                                    fontFamily: fontMedium,
+                                    textColor: Colors.black),
+                              ],
+                            )
+                          : SizedBox(),
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          text("${getTranslated(context, "TOTAL")} : ",
+                              fontSize: 10.sp,
+                              fontFamily: fontMedium,
+                              textColor: Colors.black),
+                          text("₹" + "${widget.model.amount}",
+                              fontSize: 10.sp,
+                              fontFamily: fontMedium,
+                              textColor: Colors.black),
+                        ],
+                      ),
+                      boxHeight(10),
+                    ],
+                  ),
+                )
+              : SizedBox(),
         ],
       ),
     );
@@ -889,7 +1018,7 @@ class _DetailsState extends State<Details> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            getTranslated(context,title)!,
+            getTranslated(context, title)!,
             style: theme.textTheme.headline6!
                 .copyWith(color: theme.hintColor, fontSize: 16),
           ),

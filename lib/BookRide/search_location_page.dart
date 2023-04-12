@@ -1542,7 +1542,7 @@ class _SearchLocationPageState extends State<SearchLocationPage> {
                           isCentered: true,
                           textColor: Colors.redAccent))
                   : SizedBox(),
-              bookingDate != null && bookingDate!.minute > DateTime.now().minute
+              bookingDate != null
                   ? Padding(
                       padding: EdgeInsets.all(8.0),
                       child: text(
