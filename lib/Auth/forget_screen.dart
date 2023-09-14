@@ -23,6 +23,8 @@ import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sizer/sizer.dart';
 
+import '../Theme/style.dart';
+
 
 class ForgetScreen extends StatefulWidget {
 
@@ -50,7 +52,7 @@ class _ForgetScreenState extends State<ForgetScreen> {
       body: FadedSlideAnimation(
         SingleChildScrollView(
           child: Container(
-            color: Color(0xff41dbde),
+            color: AppTheme.primaryColor,
             height: MediaQuery.of(context).size.height,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -270,7 +272,8 @@ class _ForgetScreenState extends State<ForgetScreen> {
         setSnackbar("Google Login Successfully", context);
         App.localStorage.setString("userId", response['data'][0]['id'].toString());
         curUserId = response['data'][0]['id'].toString();
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
+        Navigator.popAndPushNamed(context, "/");
+       // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
       } else {
         navigateScreen(
             context, RegistrationUI("",myName,myEmail));

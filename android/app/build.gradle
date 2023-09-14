@@ -1,3 +1,12 @@
+/*import java.text.DateFormat
+import java.text.SimpleDateFormat
+
+def getDateTime() {
+    DateFormat df = new SimpleDateFormat("yyyyMMddHHmm");
+
+    return df.format(new Date());
+}*/
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -41,12 +50,17 @@ android {
 
     lintOptions {
         disable 'InvalidPackage'
+        checkReleaseBuilds false
+    }
+
+    aaptOptions {
+        cruncherEnabled = false
     }
 
     defaultConfig {
-        applicationId "com.sahayatri.user"
+        applicationId "com.smcabs.user"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -62,14 +76,26 @@ android {
         }
     }
 
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-            ndk {
-                abiFilters 'arm64-v8a', 'armeabi-v7a'
-            }
-        }
-    }
+         buildTypes {
+         release {
+             // TODO: Add your own signing config for the release build.
+             // Signing with the debug keys for now, so `flutter run --release` works.
+             signingConfig signingConfigs.release
+         }
+     }
+//    signingConfigs {
+//        release {
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['keyPassword']
+//            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+//            storePassword keystoreProperties['storePassword']
+//        }
+//    }
+//    buildTypes {
+//        release {
+//            signingConfig signingConfigs.release
+//        }
+//    }
 }
 
 flutter {

@@ -10,6 +10,7 @@ import 'package:cabira/DrawerPages/Profile/profile_page.dart';
 import 'package:cabira/DrawerPages/Profile/reviews.dart';
 import 'package:cabira/DrawerPages/PromoCode/promo_code_page.dart';
 import 'package:cabira/DrawerPages/Refer%20Earn/refer_earn.dart';
+import 'package:cabira/DrawerPages/Rides/intercity_rides.dart';
 import 'package:cabira/DrawerPages/Rides/my_rides_page.dart';
 import 'package:cabira/DrawerPages/Rides/rental_rides.dart';
 import 'package:cabira/DrawerPages/Settings/settings_page.dart';
@@ -30,23 +31,27 @@ import 'package:cabira/Locale/locale.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
+import '../Auth/Login/UI/login_ui.dart';
+import '../Model/DeleteAccountModel.dart';
+
 class AppDrawer extends StatefulWidget {
   final bool fromHome;
-
-  AppDrawer([this.fromHome = true]);
+  ValueChanged onResult;
+  AppDrawer({this.fromHome = true, required this.onResult});
 
   @override
   State<AppDrawer> createState() => _AppDrawerState();
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    //addArray([1000, 100, 1000, 10, 100, 1, 5]);
     getNumber();
   }
+
   ApiBaseHelper apiBase = new ApiBaseHelper();
   bool isNetwork = false;
   bool loading = false;
@@ -56,8 +61,9 @@ class _AppDrawerState extends State<AppDrawer> {
       Map params = {
         "user_id": curUserId.toString(),
       };
-      var res =
-      await http.get(Uri.parse(baseUrl1 + "Authentication/get_setting"),);
+      var res = await http.get(
+        Uri.parse(baseUrl1 + "Authentication/get_setting"),
+      );
       Map response = jsonDecode(res.body);
       print(response);
       if (response['status']) {
@@ -75,6 +81,21 @@ class _AppDrawerState extends State<AppDrawer> {
     }
   }
 
+  void addArray(List<int> arr) {
+    int index = 0;
+    int total = 0;
+    for (int i = 0; i < arr.length; i++) {
+      if (i + 1 < arr.length && arr[i] < arr[i + 1] && index != i) {
+        arr[i + 1] = arr[i + 1] - arr[i];
+        index = i + 1;
+        continue;
+      } else {
+        total += arr[i];
+      }
+    }
+    print("Total = ${total}");
+  }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
@@ -85,13 +106,13 @@ class _AppDrawerState extends State<AppDrawer> {
             // crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               InkWell(
-                onTap: (){
+                onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(context,MaterialPageRoute(builder: (context)=> ProfilePage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  color: theme.scaffoldBackgroundColor,
+                  color: AppTheme.primaryColor,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -126,16 +147,17 @@ class _AppDrawerState extends State<AppDrawer> {
                                   child: Text(name,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
-                                      style: theme.textTheme.headline5!.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20)),
+                                      style: theme.textTheme.headline5!
+                                          .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20)),
                                 ),
                                 SizedBox(height: 6),
-                                Text(mobile!=null?mobile.toString():"",
+                                Text(mobile != "" ? mobile.toString() : "",
                                     style: theme.textTheme.caption!
                                         .copyWith(fontSize: 12)),
                                 SizedBox(height: 4),
-                             /*   Container(
+                                /*   Container(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
@@ -171,52 +193,89 @@ class _AppDrawerState extends State<AppDrawer> {
                 if (widget.fromHome)
                   Navigator.pop(context);
                 else
-                  Navigator.push(context,MaterialPageRoute(builder: (context)=> SearchLocationPage()));
-              }),
-              buildListTile(context, Icons.person, "MY_PROFILE", () {
-                Navigator.pop(context);
-                Navigator.push(context,MaterialPageRoute(builder: (context)=> ProfilePage()));
-              }),
-              buildListTile(context, Icons.drive_eta, "MY_RIDES", () {
-                Navigator.pop(context);
-                Navigator.push(context,MaterialPageRoute(builder: (context)=> MyRidesPage()));
-              }),
-              buildListTile(
-                  context, Icons.account_balance_wallet, "WALLET", () {
-                Navigator.pop(context);
-                Navigator.push(context,MaterialPageRoute(builder: (context)=> WalletPage()));
-
-              }),
-              buildListTile(
-                  context, Icons.star, 'RATING',
-                      () {
-                    Navigator.pop(context);
-                    Navigator.push(
+                  Navigator.popUntil(
+                    context,
+                    ModalRoute.withName('/'),
+                  );
+                /*Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) =>  ReviewsPage()),
-                    );
-                    /*Navigator.popAndPushNamed(context, PageRoutes.reviewsPage);*/
-                  }),
-             /* buildListTile(context, Icons.local_offer, Strings.PROMO_CODE,
+                      MaterialPageRoute(
+                          builder: (context) => SearchLocationPage()));*/
+              }),
+              buildListTile(context, Icons.person, "MY_PROFILE", () async {
+                var result = await Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ProfilePage()));
+                if (result != null) {
+                  widget.onResult(result);
+                  Navigator.pop(context);
+                }
+              }),
+              buildListTile(context, Icons.drive_eta, "MY_RIDES", () async {
+                // Navigator.pop(context);
+                var result = await Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => MyRidesPage("3")));
+                if (result != null) {
+                  widget.onResult(result);
+                  Navigator.pop(context);
+                }
+              }),
+              // buildListTile(context, Icons.history, "INTERCITY", () async {
+              //   // Navigator.pop(context);
+              //   var result = await Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //           builder: (context) => InterCityRidePage("3")));
+              //   if (result != null) {
+              //     widget.onResult(result);
+              //     Navigator.pop(context);
+              //   }
+              // }),
+              buildListTile(context, Icons.account_balance_wallet, "WALLET",
+                  () async {
+                // Navigator.pop(context);
+                var result = await Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => WalletPage()));
+                if (result != null) {
+                  widget.onResult(result);
+                  Navigator.pop(context);
+                }
+              }),
+              // buildListTile(context, Icons.star, 'RATING', () async {
+              //   // Navigator.pop(context);
+              //   var result = await Navigator.push(
+              //     context,
+              //     MaterialPageRoute(builder: (context) => ReviewsPage()),
+              //   );
+              //   if (result != null) {
+              //     widget.onResult(result);
+              //     Navigator.pop(context);
+              //   }
+              //   /*Navigator.popAndPushNamed(context, PageRoutes.reviewsPage);*/
+              // }),
+              /* buildListTile(context, Icons.local_offer, Strings.PROMO_CODE,
                       () {
                     Navigator.pop(context);
                     Navigator.push(context,MaterialPageRoute(builder: (context)=> PromoCodePage()));
                   }),*/
               ListTile(
-                title: Text(getTranslated(context, "RENTAL_RIDES")!,style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),),
-                leading: Icon(Icons.location_on_outlined,color: Color(0xff2CC8DE)),
+                title: Text(
+                  getTranslated(context, "RENTAL_RIDES")!,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                leading:
+                    Icon(Icons.location_on_outlined, color: AppTheme.primaryColor,),
                 /*   trailing: Text("₹500",style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),),*/
-                onTap: (){
+                onTap: () async {
                   Navigator.pop(context);
-                  Navigator.push(
+                  var result = await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) =>  RentalRides()),
+                    MaterialPageRoute(builder: (context) => RentalRides()),
                   );
                   /* Navigator.push(
                       context,
@@ -224,33 +283,43 @@ class _AppDrawerState extends State<AppDrawer> {
                     );*/
                 },
               ),
-              buildListTile(context, Icons.call,
-                  "EMERGENCY_CALL", () {
-                    launch("tel://${userNumber}");
-                  }),
-              buildListTile(context, Icons.airline_seat_recline_normal_rounded, "REFER_EARN",
-                      () {
-                    if (widget.fromHome)
-                      Navigator.push(context,MaterialPageRoute(builder: (context)=> ReferEarn()));
-                    else
-                      Navigator.push(context,MaterialPageRoute(builder: (context)=> ReferEarn()));
-                  }),
-              buildListTile(context, Icons.lock, "CHANGE_PASSWORD",
-                      () {
-                    Navigator.pop(context);
-                    Navigator.push(context,MaterialPageRoute(builder: (context)=> ChangePassword()));
-                  }),
-              buildListTile(context, Icons.settings, "SETTINGS", () {
-                Navigator.pop(context);
-                Navigator.push(context,MaterialPageRoute(builder: (context)=> SettingsPage()));
+              // buildListTile(context, Icons.call, "EMERGENCY_CALL", () {
+              //   launch("tel://${userNumber}");
+              // }),
+              buildListTile(context, Icons.airline_seat_recline_normal_rounded,
+                  "REFER_EARN", () {
+                if (widget.fromHome)
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ReferEarn()));
+                else
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ReferEarn()));
               }),
+              buildListTile(context, Icons.lock, "CHANGE_PASSWORD", () {
+                Navigator.pop(context);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ChangePassword()));
+              }),
+              // buildListTile(context, Icons.settings, "SETTINGS", () {
+              //   Navigator.pop(context);
+              //   Navigator.push(context,
+              //       MaterialPageRoute(builder: (context) => SettingsPage()));
+              // }),
               buildListTile(context, Icons.help, "FAQS", () {
                 Navigator.pop(context);
-                Navigator.push(context,MaterialPageRoute(builder: (context)=> FaqPage()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => FaqPage()));
               }),
               buildListTile(context, Icons.mail, "CONTACT_US", () {
                 Navigator.pop(context);
-                Navigator.push(context,MaterialPageRoute(builder: (context)=> ContactUsPage()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ContactUsPage()));
+              }),
+              buildListTile(context, Icons.delete, "ACCOUNT_DELETE", () {
+                deleteAccountDailog();
+                // Navigator.pop(context);
+                // Navigator.push(context,
+                //     MaterialPageRoute(builder: (context) => ContactUsPage()));
               }),
               buildListTile(context, Icons.logout, "LOGOUT", () {
                 showDialog(
@@ -262,7 +331,7 @@ class _AppDrawerState extends State<AppDrawer> {
                         content: Text(getTranslated(context, "DO_LOGOUT")!),
                         actions: <Widget>[
                           ElevatedButton(
-                            child: Text('No'),
+                            child: Text('No', style: TextStyle(color: Color(0xff589605)),),
                             /*   textColor: Theme.of(context).colorScheme.primary,
                               shape: RoundedRectangleBorder(
                                   side: BorderSide(color: Colors.transparent)),*/
@@ -271,7 +340,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             },
                           ),
                           ElevatedButton(
-                              child: Text('Yes'),
+                              child: Text('Yes', style: TextStyle(color: Color(0xff589605)),),
                               /* shape: RoundedRectangleBorder(
                                     side: BorderSide(color: Colors.transparent)),
                                 textColor: Theme.of(context).colorScheme.primary,*/
@@ -279,7 +348,11 @@ class _AppDrawerState extends State<AppDrawer> {
                                 await App.init();
                                 App.localStorage.clear();
                                 //Common().toast("Logout");
-                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginPage()), (route) => false);
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LoginPage()),
+                                    (route) => false);
                               }),
                         ],
                       );
@@ -292,6 +365,80 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
+  deleteAccountDailog() async {
+    await dialogAnimate(context,
+        StatefulBuilder(builder: (BuildContext context, StateSetter setStater) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setStater) {
+                return AlertDialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                  content: Text(
+                    getTranslated(context, 'DELETEACCOUNT')!,
+                    style: Theme.of(this.context)
+                        .textTheme
+                        .subtitle1!
+                        .copyWith(color: Colors.black),
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                        child: Text(
+                          getTranslated(context, 'NO')!,
+                          style: Theme.of(this.context).textTheme.subtitle2!.copyWith(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        }),
+                    TextButton(
+                        child: Text(
+                          getTranslated(context, 'YES')!,
+                          style: Theme.of(this.context).textTheme.subtitle2!.copyWith(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          print("delete count in this tap");
+                          deleteAccount();
+                        })
+                  ],
+                );
+              });
+        }));
+  }
+
+
+  Future<DeleteAccountModel?> deleteAccount() async {
+    // var header = headers;
+    var headers = {
+      'Cookie': 'ci_session=5e9fa50e0c9e8f5f06553569f1cb00eec6120faf'
+    };
+    var request = http.MultipartRequest('POST', Uri.parse('http://smcab.in/api/Authentication/delete_user'));
+    request.fields.addAll({
+      'user_id': '${curUserId.toString()}'
+    });
+    print("User id in delet account ${request.fields}");
+    // request.headers.addAll(header);
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      print('workingggggg');
+      final str = await response.stream.bytesToString();
+      var data  = DeleteAccountModel.fromJson(json.decode(str));
+      setSnackbar(data.message.toString(), context);
+      await App.init();
+      App.localStorage.clear();
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => LoginPage()),
+              (route) => false);
+      return DeleteAccountModel.fromJson(json.decode(str));
+    } else {
+      return null;
+    }
+  }
+
   ListTile buildListTile(BuildContext context, IconData icon, String title,
       [Function? onTap]) {
     var theme = Theme.of(context);
@@ -299,7 +446,7 @@ class _AppDrawerState extends State<AppDrawer> {
       leading:
           FadedScaleAnimation(Icon(icon, color: theme.primaryColor, size: 24)),
       title: Text(
-        getTranslated(context,title)!,
+        getTranslated(context, title)!,
         style: theme.textTheme.headline5!
             .copyWith(fontSize: 18, fontWeight: FontWeight.w500),
       ),

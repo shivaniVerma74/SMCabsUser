@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:social_share/social_share.dart';
 
+import '../../Theme/style.dart';
+
 class ReferEarn extends StatefulWidget {
   const ReferEarn({Key? key}) : super(key: key);
 
@@ -44,14 +46,16 @@ class _ReferEarnState extends State<ReferEarn> {
         for (var v in response['data']) {
           setState(() {
             referList.add(new ReferModel(v['id'], v['username'], v['email'], v['mobile'], v['car_type'], v['user_image'], v['refer_status']));
-            des= response['Refferal Message'];
+            des = response['Refferal Message'];
           });
+          print("this is description $des");
         }
       } else {
         setSnackbar(response['message'], context);
         setState((){
-          des= response['Refferal Message'];
+          des = response['Refferal Message'];
         });
+        print("this is description $des");
       }
     } on TimeoutException catch (_) {
       setSnackbar(getTranslated(context, "WRONG")!, context);
@@ -86,8 +90,7 @@ class _ReferEarnState extends State<ReferEarn> {
               color: Colors.black,
             ),
           ),
-          backgroundColor: Color(
-              0xff2CC8DE), //<- background color to combine with the picture :-)
+          backgroundColor: AppTheme.primaryColor,//<- background color to combine with the picture :-)
         ),
         body: SingleChildScrollView(
           child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
@@ -110,7 +113,8 @@ class _ReferEarnState extends State<ReferEarn> {
                       style: TextStyle(
                         fontSize: 30.0,
                         fontWeight: FontWeight.bold,
-                      ))
+                      ),
+                  ),
                 ])),
             Container(
                 margin: EdgeInsets.only(top: 20.0),
@@ -127,7 +131,7 @@ class _ReferEarnState extends State<ReferEarn> {
                 child: Column(children: [
                   InkWell(
                     onTap: () {
-                      SocialShare.copyToClipboard(refer);
+                      // SocialShare.copyToClipboard(refer);
                       setSnackbar("Code Copied", context);
                     },
                     child: DottedBorder(
@@ -136,7 +140,7 @@ class _ReferEarnState extends State<ReferEarn> {
                         child: Container(
                           height: 50,
                           width: 250,
-                          color: Color(0xff2CC8DE),
+                          color: AppTheme.primaryColor,
                           child: Center(child: Text(refer)),
                         )),
                   ),
@@ -150,7 +154,7 @@ class _ReferEarnState extends State<ReferEarn> {
                         padding:  EdgeInsets.only(left: 10.w,bottom: 0.0,top: 0.0,right: 10.w),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            primary: Color(0xff2CC8DE),
+                            primary: AppTheme.primaryColor,
                           ),
                           onPressed: () {
                             SocialShare.shareOptions(

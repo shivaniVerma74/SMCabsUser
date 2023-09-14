@@ -10,7 +10,7 @@
   "VIEW": "View",
   "CONTINUE": "Continue",
   "CONFIRM_RIDE": "Confirm Ride Request",
-  "TOTAL": "Total",
+  "TOTAL": "Estimate Fare",
   "CANCEL_CHARGE": "Cancellation Charge",
   "CONFIRM": "Confirm",
   "FORGOT": "Forgot Password?",
@@ -46,7 +46,6 @@
   "NO_TRANSACTION": "No Transaction",
   "NO_WITHDRAWAL": "No Withdrawal",
   "RENTAL_RIDES": "Rental Rides",
-
   "DO_LOGOUT": "Do You Want to Logout ?",
   "NO_NOTIFICATION": "No Notification",
   "WRONG": "Something went wrong",
@@ -82,7 +81,7 @@
   "CVV_CODE": "CVV Code",
   "ENTER_AMOUNT": "Enter amount (In ₹)",
   "SKIP": "Skip",
-  "ADD_MONEY": "Add money",
+  "ADD_MONEY": "Add Amount",
   "ENTER_SOURCE": "Enter source",
   "ENTER_DESTINATION": "Enter destination",
   "WALLET": "Wallet",
@@ -109,6 +108,8 @@
   "PROMO_CODE": "Promo Code",
   "FAQS": "FAQs",
   "CONTACT_US": "Contact us",
+  "ACCOUNT_DELETE": "Account Delete",
+  "DELETEACCOUNT": "Are You Sure You want to Delete User Account",
   "YOUR_ACCOUNT_DETAILS": "Your account details",
   "CHANGE_PIC": "Change picture",
   "CHANGE_PASSWORD": "Change Password",
@@ -177,7 +178,7 @@
   "REFER": "Referral Code",
   "START_NOW": "Start Now",
   "END_TIME": "End Time",
-  "ONLY": "Only two person allowed in a booking.",
+  "ONLY": "Only four person allowed in a booking.",
   "TRAN_ID": "Transaction ID",
   "OFFER": "Offers",
   "PROMO_CODE1": "Promo Code",
@@ -199,6 +200,8 @@
   "INTERCITY": "Intercity",
   "GENDER": "Gender",
   "DOB": "Date of birth",
-  "REFER_CODE": "Referral Code(Optional)"
+  "REFER_CODE": "Referral Code(Optional)",
+  "NO": "No",
+  "YES": "Yes"
 
 }

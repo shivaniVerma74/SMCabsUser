@@ -1,22 +1,21 @@
-
 import 'package:cabira/utils/common.dart';
 import 'package:cabira/utils/constant.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 
-class ReferCodeService{
+class ReferCodeService {
   BuildContext context;
   ValueChanged? onResult;
 
-  ReferCodeService(this.context,{this.onResult});
+  ReferCodeService(this.context, {this.onResult});
 
   BranchUniversalObject? buo;
-  String referCode="";
+  String referCode = "";
   BranchLinkProperties lp = BranchLinkProperties();
-  Future init(code)async{
+  Future init(code) async {
     await App.init();
-    referCode=refer.toString();
+    referCode = refer.toString();
     print(code.toString());
     buo = BranchUniversalObject(
         title: 'Sahaytri',
@@ -28,13 +27,14 @@ class ReferCodeService{
         // even if the user goes to the app instead of your website! This will help your SEO efforts.
         canonicalUrl: 'https://flutter.dev',
         imageUrl:
-        'https://flutter.dev/assets/flutter-lockup-4cb0ee072ab312e59784d9fbf4fb7ad42688a7fdaea1270ccf6bbf4f34b7e03f.svg',
+            'https://flutter.dev/assets/flutter-lockup-4cb0ee072ab312e59784d9fbf4fb7ad42688a7fdaea1270ccf6bbf4f34b7e03f.svg',
         contentDescription: 'Ride App',
         publiclyIndex: true,
         locallyIndex: true,
         contentMetadata: BranchContentMetaData(),
         expirationDateInMilliSec:
-        DateTime.now().add(Duration(days: 365)).millisecondsSinceEpoch);
+            DateTime.now().add(Duration(days: 365)).millisecondsSinceEpoch);
+    FlutterBranchSdk.validateSDKIntegration();
     FlutterBranchSdk.registerView(buo: buo!);
     lp = BranchLinkProperties(
       channel: 'facebook',
@@ -45,18 +45,23 @@ class ReferCodeService{
       // Aliases are enforced to be unique** and immutable per domain, and per link - they cannot be reused unless deleted.
       //alias: 'https://branch.io' //define link url,
       stage: 'new share',
-      campaign: 'launch',)
-      ..addControlParam('refer_code', referCode)
+      campaign: 'launch',
+    )
+      //  ..addControlParam('refer_code', referCode)
       ..addControlParam('codeId', code.toString())
-      ..addControlParam('custom_random',  DateTime.now().millisecond.toString());
+      ..addControlParam('custom_random', DateTime.now().millisecond.toString());
+    print("okay");
+
     _generateDeepLink(context);
   }
 
   void _generateDeepLink(BuildContext context) async {
-    BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo!, linkProperties: lp);
-    print(response);
+    BranchResponse response =
+        await FlutterBranchSdk.getShortUrl(buo: buo!, linkProperties: lp);
+    print("okay" + response.success.toString());
+    print(response.result.toString());
     if (response.success) {
-      if(onResult!=null){
+      if (onResult != null) {
         onResult!(response.result.toString());
       }
 
@@ -65,8 +70,7 @@ class ReferCodeService{
 
       // Toast.show("${response.result}",context);
     } else {
-      print(
-          '${response.errorCode} - ${response.errorMessage}');
+      print('${response.errorCode} - ${response.errorMessage}');
     }
   }
 }

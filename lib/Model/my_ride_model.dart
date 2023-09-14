@@ -73,6 +73,7 @@ class MyRideModel {
   String? ratePerKm;
   String? timeAmount;
   String? surgeAmount;
+  String? surge_percentage;
   String? gstAmount;
   String? rating;
   String? driveLat;
@@ -85,11 +86,17 @@ class MyRideModel {
   String? extra_time_charge, extra_km_charge;
   String? sharing_type;
   String? promo_discount;
+  String? payment_status, add_on_charge, add_on_time, add_on_distance;
   bool? show;
   MyRideModel(
       {this.id,
       this.userId,
       this.hours,
+      this.payment_status,
+      this.surge_percentage,
+      this.add_on_charge,
+      this.add_on_time,
+      this.add_on_distance,
       this.extra_km_charge,
       this.extra_time_charge,
       this.promo_discount,
@@ -179,8 +186,16 @@ class MyRideModel {
   MyRideModel.fromJson(Map<String, dynamic> json) {
     id = json['booking_id'] != null ? json['booking_id'] : json['id'];
     userId = json['user_id'];
+    payment_status = json['payment_status'];
+    add_on_charge = json['add_on_charge'];
+    add_on_distance = json['add_on_distance'];
+    add_on_time = json['add_on_time'];
     sharing_type = json['shareing_type'];
-    promo_discount = json['promo_discount'];
+    surge_percentage = json['surge_percentage'];
+    promo_discount =
+        json['promo_discount'] != null && json['promo_discount'] != ""
+            ? json['promo_discount']
+            : "0";
     extra_time_charge = json['extra_time_charge'];
     extra_km_charge = json['extra_km_charge'];
     totalTime = json['total_time'];

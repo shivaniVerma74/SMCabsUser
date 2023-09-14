@@ -34,7 +34,7 @@ class _SendToBankPageState extends State<SendToBankPage> {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     return Scaffold(
-      drawer: AppDrawer(false),
+      //drawer: AppDrawer(false),
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: [
@@ -48,7 +48,7 @@ class _SendToBankPageState extends State<SendToBankPage> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                     child: Text(
-                      getTranslated(context,'AVAILABLE_AMOUNT')!,
+                      getTranslated(context, 'AVAILABLE_AMOUNT')!,
                       style: theme.textTheme.bodyText2!
                           .copyWith(color: theme.hintColor),
                     ),
@@ -69,15 +69,15 @@ class _SendToBankPageState extends State<SendToBankPage> {
                         children: [
                           EntryField(
                             controller: _bankNameController,
-                            label: getTranslated(context,'BANK_NAME'),
+                            label: getTranslated(context, 'BANK_NAME'),
                           ),
                           EntryField(
                             controller: _accountNumberController,
-                            label: getTranslated(context,'ACCOUNT_NUMBER'),
+                            label: getTranslated(context, 'ACCOUNT_NUMBER'),
                           ),
                           EntryField(
                             controller: _bankCodeController,
-                            label: getTranslated(context,'BANK_CODE'),
+                            label: getTranslated(context, 'BANK_CODE'),
                           ),
                           SizedBox(
                             height: 20,
@@ -87,8 +87,8 @@ class _SendToBankPageState extends State<SendToBankPage> {
                             padding: EdgeInsets.symmetric(vertical: 20),
                             child: EntryField(
                               controller: _amountController,
-                              label:
-                              getTranslated(context,'ENTER_AMOUNT_TO_TRANSFER'),
+                              label: getTranslated(
+                                  context, 'ENTER_AMOUNT_TO_TRANSFER'),
                             ),
                           ),
                         ],
@@ -103,7 +103,7 @@ class _SendToBankPageState extends State<SendToBankPage> {
             start: 0,
             end: 0,
             child: CustomButton(
-              text: getTranslated(context,'SUBMIT'),
+              text: getTranslated(context, 'SUBMIT'),
               onTap: () => Navigator.pop(context),
             ),
           )

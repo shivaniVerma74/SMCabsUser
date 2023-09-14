@@ -24,6 +24,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sizer/sizer.dart';
+import '../../../Theme/style.dart';
 import 'login_interactor.dart';
 
 class LoginUI extends StatefulWidget {
@@ -56,7 +57,7 @@ class _LoginUIState extends State<LoginUI> {
       body: FadedSlideAnimation(
         SingleChildScrollView(
           child: Container(
-            color: Color(0xff41dbde),
+            color: AppTheme.primaryColor,
             height: MediaQuery.of(context).size.height,
             child:
             // choose == "pass"
@@ -162,7 +163,8 @@ class _LoginUIState extends State<LoginUI> {
                                      // getTranslated(context, "CONTINUE")!,
                                      fontFamily: fontMedium,
                                      fontSize: 12.sp,
-                                     textColor: Colors.white):CircularProgressIndicator()),
+                                     textColor: Colors.white):CircularProgressIndicator()
+                             ),
                            ),
                          ),
                            InkWell(
@@ -188,56 +190,56 @@ class _LoginUIState extends State<LoginUI> {
                          ],
                        ),
                      ),
-                      Spacer(flex: 1),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          boxWidth(40),
-                          Expanded(child: Divider()),
-                          boxWidth(10),
-                          text(getTranslated(context, "OR")!,
-                              fontFamily: fontMedium,
-                              fontSize: 12.sp,
-                              textColor: Colors.black),
-                          boxWidth(10),
-                          Expanded(child: Divider()),
-                          boxWidth(40),
-                        ],
-                      ),
-                      Spacer(flex: 1),
-                      Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                loginFb();
-                              },
-                              child: Image.asset(
-                                "assets/fb.png",
-                                width: 8.h,
-                                height: 8.h,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 5.w,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                googleLogin();
-                              },
-                              child: Image.asset(
-                                "assets/google.png",
-                                width: 8.h,
-                                height: 8.h,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Spacer(flex: 1),
+                      // Spacer(flex: 1),
+                      // Row(
+                      //   crossAxisAlignment: CrossAxisAlignment.center,
+                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //   children: [
+                      //     boxWidth(40),
+                      //     Expanded(child: Divider()),
+                      //     boxWidth(10),
+                      //     text(getTranslated(context, "OR")!,
+                      //         fontFamily: fontMedium,
+                      //         fontSize: 12.sp,
+                      //         textColor: Colors.black),
+                      //     boxWidth(10),
+                      //     Expanded(child: Divider()),
+                      //     boxWidth(40),
+                      //   ],
+                      // ),
+                      // Spacer(flex: 1),
+                      // Container(
+                      //   child: Row(
+                      //     mainAxisSize: MainAxisSize.max,
+                      //     mainAxisAlignment: MainAxisAlignment.center,
+                      //     children: [
+                      //       InkWell(
+                      //         onTap: () {
+                      //           loginFb();
+                      //         },
+                      //         child: Image.asset(
+                      //           "assets/fb.png",
+                      //           width: 8.h,
+                      //           height: 8.h,
+                      //         ),
+                      //       ),
+                      //       SizedBox(
+                      //         width: 5.w,
+                      //       ),
+                      //       InkWell(
+                      //         onTap: () {
+                      //           googleLogin();
+                      //         },
+                      //         child: Image.asset(
+                      //           "assets/google.png",
+                      //           width: 8.h,
+                      //           height: 8.h,
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                      // Spacer(flex: 1),
                       // InkWell(
                       //   onTap: (){
                       //     navigateScreen(
@@ -491,7 +493,8 @@ class _LoginUIState extends State<LoginUI> {
         if (response['status']) {
           App.localStorage.setString("userId", response['data']['id'].toString());
           curUserId = response['data']['id'].toString();
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
+          Navigator.popAndPushNamed(context, "/");
+         // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
         } else {
 
         }
@@ -629,7 +632,8 @@ class _LoginUIState extends State<LoginUI> {
         setSnackbar("Google Login Successfully", context);
         App.localStorage.setString("userId", response['data'][0]['id'].toString());
         curUserId = response['data'][0]['id'].toString();
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
+        Navigator.popAndPushNamed(context, "/");
+      //  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
       } else {
         navigateScreen(
             context, RegistrationUI("",myName,myEmail));

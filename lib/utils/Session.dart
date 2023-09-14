@@ -1,9 +1,8 @@
 import 'dart:async';
-
+import 'dart:math';
 
 import 'package:cabira/utils/widget.dart';
 import 'package:connectivity/connectivity.dart';
-
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +11,6 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 import 'Demo_Localization.dart';
 import 'colors.dart';
@@ -25,6 +23,11 @@ setPrefrenceBool(String key, bool value) async {
   await prefs.setBool(key, value);
 }
 
+const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+Random _rnd = Random();
+
+String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+    length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 Future<bool> isNetworkAvailable() async {
   var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.mobile) {
@@ -76,14 +79,13 @@ noIntImage() {
 setSnackbar(String msg, BuildContext context) {
   ScaffoldMessenger.of(context).clearSnackBars();
   ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-    duration: Duration(seconds: 1),
-    content:text(
+    duration: Duration(seconds: 4),
+    content: text(
       msg,
       isCentered: true,
       textColor: Colors.white,
     ),
     behavior: SnackBarBehavior.floating,
-
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),
     ),
@@ -152,7 +154,7 @@ String? validateMob(String value, String? msg1, String? msg2) {
   if (value.isEmpty) {
     return msg1;
   }
-  if (value.length !=10) {
+  if (value.length != 10) {
     return msg2;
   }
   return null;
@@ -266,6 +268,7 @@ dialogAnimate(BuildContext context, Widget dialge) {
       } //as Widget Function(BuildContext, Animation<double>, Animation<double>)
       );
 }
+
 /*String getString(String name){
   String temp ="";
   if(name!=null&&name!=""){
@@ -275,91 +278,104 @@ dialogAnimate(BuildContext context, Widget dialge) {
   }
   return temp;
 }*/
-String getString1(String name){
-  String temp ="";
-  if(name!=null&&name!=""){
-    temp = name[0].toString().toUpperCase()  + name.toString().substring(1).toLowerCase();
-  }else{
-    temp ="No Data";
+String getString1(String name) {
+  String temp = "";
+  if (name != null && name != "") {
+    temp = name[0].toString().toUpperCase() +
+        name.toString().substring(1).toLowerCase();
+  } else {
+    temp = "No Data";
   }
   return temp;
 }
-String parseString(name){
-  String temp ="";
-  if(name!=null&&name!=""){
-   // temp = parse(name).body!.text.toString();
-  }else{
-    temp ="No Data";
-  }
-  return temp;
-}
-String getDate(date){
-  String temp ="";
-  if(date!=null&&date!=""){
 
+String parseString(name) {
+  String temp = "";
+  if (name != null && name != "") {
+    // temp = parse(name).body!.text.toString();
+  } else {
+    temp = "No Data";
+  }
+  return temp;
+}
+
+String getDate(date) {
+  String temp = "";
+  if (date != null && date != "") {
     temp = DateFormat.yMMMMEEEEd().format(DateTime.parse(date.toString()));
-    temp += " "+DateFormat.jm().format(DateTime.parse(date.toString()));
-  }else{
-    temp ="Not Data";
+    temp += " " + DateFormat.jm().format(DateTime.parse(date.toString()));
+  } else {
+    temp = "Not Data";
   }
   return temp;
 }
-String getOrderTime(date){
-  if(date.toString().contains("pm")){
-    date=date.toString().replaceAll("pm", " PM");
-  }else{
-    date=date.toString().replaceAll("am", " AM");
+
+String getOrderTime(date) {
+  if (date.toString().contains("pm")) {
+    date = date.toString().replaceAll("pm", " PM");
+  } else {
+    date = date.toString().replaceAll("am", " AM");
   }
-  DateTime parseDate =new DateFormat("dd-MM-yyyy hh:mm:ss a").parse(date);
-  String temp ="";
-  if(date!=null&&date!=""){
-    temp = DateFormat.yMMMMEEEEd().format(parseDate)+"\n\n"+DateFormat('hh:mm a').format(parseDate);
-  }else{
-    temp ="Not Data";
+  DateTime parseDate = new DateFormat("dd-MM-yyyy hh:mm:ss a").parse(date);
+  String temp = "";
+  if (date != null && date != "") {
+    temp = DateFormat.yMMMMEEEEd().format(parseDate) +
+        "\n\n" +
+        DateFormat('hh:mm a').format(parseDate);
+  } else {
+    temp = "Not Data";
   }
   return temp;
 }
-String getTimeDate(date){
-  String temp ="";
-  if(date!=null&&date!=""){
+
+String getTimeDate(date) {
+  String temp = "";
+  if (date != null && date != "") {
     temp = DateFormat.MMMEd().format(DateTime.parse(date.toString()));
-  }else{
-    temp ="Not Data";
+  } else {
+    temp = "Not Data";
   }
   return temp;
 }
-String getDate1(date){
-  String temp ="";
-  if(date!=null&&date!=""){
-    temp = DateFormat.yMMMMEEEEd().format(DateTime.parse(date.toString()))+" at "+DateFormat.Hm().format(DateTime.parse(date.toString()));
-  }else{
-    temp ="Not Data";
+
+String getDate1(date) {
+  String temp = "";
+  if (date != null && date != "") {
+    temp = DateFormat.yMMMMEEEEd().format(DateTime.parse(date.toString())) +
+        " at " +
+        DateFormat.Hm().format(DateTime.parse(date.toString()));
+  } else {
+    temp = "Not Data";
   }
   return temp;
 }
-String getPercentage(price,disPrice){
-  String temp ="NULL";
-  if(price!=null&&disPrice!=null){
-      temp = (100-(int.parse(disPrice)*100)/int.parse(price)).toString();
+
+String getPercentage(price, disPrice) {
+  String temp = "NULL";
+  if (price != null && disPrice != null) {
+    temp = (100 - (int.parse(disPrice) * 100) / int.parse(price)).toString();
   }
-  return temp.split(".")[0]+"% OFF";
+  return temp.split(".")[0] + "% OFF";
 }
-int parseInt(number){
-  int temp =0;
-  if(number!=null){
+
+int parseInt(number) {
+  int temp = 0;
+  if (number != null) {
     temp = int.parse(number);
   }
   return temp;
 }
-String parseDouble(number){
-  String temp ="0";
-  if(number!=null){
+
+String parseDouble(number) {
+  String temp = "0";
+  if (number != null) {
     temp = double.parse(number).toStringAsFixed(1);
   }
   return temp;
 }
-checkIf(value){
-  if(value!=null&&value!=""&&value.toString()!="null"){
+
+checkIf(value) {
+  if (value != null && value != "" && value.toString() != "null") {
     return true;
   }
   return false;

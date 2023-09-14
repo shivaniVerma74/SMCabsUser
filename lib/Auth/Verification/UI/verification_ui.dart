@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:cabira/Components/custom_button.dart';
 import 'package:cabira/Components/entry_field.dart';
 import 'package:cabira/Locale/strings_enum.dart';
+import '../../../Theme/style.dart';
 import 'verification_interactor.dart';
 import 'package:cabira/Locale/locale.dart';
 
@@ -46,7 +47,7 @@ class _VerificationUIState extends State<VerificationUI> {
           children: [
             SingleChildScrollView(
               child: Container(
-                color: Color(0xff2CC8DE),
+                color: AppTheme.primaryColor,
                 height: MediaQuery.of(context).size.height + 200,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -160,7 +161,8 @@ class _VerificationUIState extends State<VerificationUI> {
         if(response['status']){
           App.localStorage.setString("userId", response['data']['id'].toString());
           curUserId = response['data']['id'].toString();
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
+          Navigator.popAndPushNamed(context, "/");
+          //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
         }else{
         }
       } on TimeoutException catch (_) {

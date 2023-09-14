@@ -28,7 +28,7 @@ class PageRoutes {
   static const String walletPage = 'wallet_page';
   static const String referPage = 'refer_earn';
   static const String promoCodePage = 'promo_code_page';
-   static const String contactUsPage = 'contact_us_page';
+  static const String contactUsPage = 'contact_us_page';
   static const String faqPage = 'faq_page';
   static const String sendToBankPage = 'send_to_bank_page';
   static const String settingsPage = 'settings_page';
@@ -37,12 +37,14 @@ class PageRoutes {
     return {
       loginNavigator: (context) => LoginNavigator(),
       searchLocationPage: (context) => SearchLocationPage(),
-      chooseCabPage: (context) => ChooseCabPage(LatLng(0,0),LatLng(0,0),"","","",null,""),
-      findingRidePage: (context) => FindingRidePage(LatLng(0,0),LatLng(0,0),"","","","","",""),
+      chooseCabPage: (context) => ChooseCabPage(
+          LatLng(0, 0), LatLng(0, 0), "", "", "", "", "", null, ""),
+      findingRidePage: (context) =>
+          FindingRidePage(LatLng(0, 0), LatLng(0, 0), "", "", "", "", "", ""),
       //rideBookedPage: (context) => RideBookedPage(),
       profilePage: (context) => ProfilePage(),
-      myRidesPage: (context) => MyRidesPage(),
-      rideInfoPage: (context) => MyRidesPage(),
+      myRidesPage: (context) => MyRidesPage("3"),
+      rideInfoPage: (context) => MyRidesPage("3"),
       walletPage: (context) => WalletPage(),
       referPage: (context) => ReferEarn(),
       promoCodePage: (context) => PromoCodePage(),

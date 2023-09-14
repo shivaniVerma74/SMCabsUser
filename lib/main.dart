@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cabira/Auth/Login/UI/login_page.dart';
+import 'package:cabira/BookRide/search_location_page.dart';
 import 'package:cabira/Theme/style.dart';
 import 'package:cabira/utils/Demo_Localization.dart';
 import 'package:cabira/utils/PushNotificationService.dart';
@@ -8,6 +9,7 @@ import 'package:cabira/utils/Session.dart';
 import 'package:cabira/utils/common.dart';
 import 'package:cabira/utils/constant.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +20,7 @@ import 'package:cabira/DrawerPages/Settings/language_cubit.dart';
 import 'package:cabira/DrawerPages/Settings/theme_cubit.dart';
 import 'package:cabira/Routes/page_routes.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:khalti_flutter/khalti_flutter.dart';
 import 'package:screen/screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
@@ -28,9 +31,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   MapUtils.getMarkerPic();
-  // MobileAds.instance.initialize();
+  MobileAds.instance.initialize();
+
   HttpOverrides.global = MyHttpOverrides();
   await Firebase.initializeApp();
+
   FirebaseMessaging.onBackgroundMessage(myForgroundMessageHandler);
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent, // navigation bar color
@@ -112,41 +117,55 @@ class _CabiraState extends State<Cabira> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return Sizer(builder: (context, orientation, deviceType) {
-      return BlocBuilder<LanguageCubit, Locale>(
-        builder: (context, locale) {
-          return BlocBuilder<ThemeCubit, ThemeData>(
-            builder: (context, theme) {
-              return MaterialApp(
-                locale: _locale,
-                supportedLocales: [
-                  Locale("en", "US"),
-                  Locale("ne", "NPL"),
-                ],
-                localizationsDelegates: [
-                  DemoLocalization.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                localeResolutionCallback: (locale, supportedLocales) {
-                  for (var supportedLocale in supportedLocales) {
-                    if (supportedLocale.languageCode == locale!.languageCode &&
-                        supportedLocale.countryCode == locale.countryCode) {
-                      return supportedLocale;
-                    }
-                  }
-                  return supportedLocales.first;
-                },
-                theme: theme,
-                home: LoginPage(),
-                // routes: PageRoutes().routes(),
-                debugShowCheckedModeBanner: false,
-              );
-            },
-          );
-        },
-      );
-    });
+    return KhaltiScope(
+        publicKey: "test_public_key_147c9018314d4c1e9d97f4701a8afb0e",
+        enabledDebugging: true,
+        builder: (context, navKey) {
+          return Sizer(builder: (context, orientation, deviceType) {
+            return BlocBuilder<LanguageCubit, Locale>(
+              builder: (context, locale) {
+                return BlocBuilder<ThemeCubit, ThemeData>(
+                  builder: (context, theme) {
+                    return MaterialApp(
+                      locale: _locale,
+                      supportedLocales: [
+                        Locale("en", "US"),
+                        Locale("ne", "NPL"),
+                      ],
+                      navigatorKey: navKey,
+                      localizationsDelegates: [
+                        KhaltiLocalizations.delegate,
+                        DemoLocalization.delegate,
+                        GlobalMaterialLocalizations.delegate,
+                        GlobalWidgetsLocalizations.delegate,
+                        GlobalCupertinoLocalizations.delegate,
+                      ],
+                      routes: {
+                        '/': (BuildContext context) => SearchLocationPage(),
+                        'Login': (BuildContext context) => LoginPage(),
+                      },
+                      localeResolutionCallback: (locale, supportedLocales) {
+                        for (var supportedLocale in supportedLocales) {
+                          if (supportedLocale.languageCode ==
+                                  locale!.languageCode &&
+                              supportedLocale.countryCode ==
+                                  locale.countryCode) {
+                            return supportedLocale;
+                          }
+                        }
+                        return supportedLocales.first;
+                      },
+                      theme: theme,
+                      initialRoute: "Login",
+                      // home: LoginPage(),
+                      // routes: PageRoutes().routes(),
+                      debugShowCheckedModeBanner: false,
+                    );
+                  },
+                );
+              },
+            );
+          });
+        });
   }
 }

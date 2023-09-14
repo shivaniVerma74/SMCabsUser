@@ -13,6 +13,7 @@ import 'package:cabira/utils/Razorpay.dart';
 import 'package:cabira/utils/Session.dart';
 import 'package:cabira/utils/colors.dart';
 import 'package:cabira/utils/constant.dart';
+import 'package:cabira/utils/khalti_pay.dart';
 import 'package:cabira/utils/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,7 +32,7 @@ class _WalletPageState extends State<WalletPage> {
   double minimumBal = 0;
   bool isNetwork = false;
   bool saveStatus = true;
-  bool showText =  false;
+  bool showText = false;
   TextEditingController amount = new TextEditingController();
   getSetting() async {
     try {
@@ -61,6 +62,7 @@ class _WalletPageState extends State<WalletPage> {
       });
     }
   }
+
   List<WalletModel> walletList = [];
 
   getWallet() async {
@@ -72,23 +74,22 @@ class _WalletPageState extends State<WalletPage> {
         "user_id": curUserId.toString(),
       };
       Map response = await apiBase.getAPICall(
-          Uri.parse(baseUrl1 + "users/getWallet/${curUserId}"),);
+        Uri.parse(baseUrl1 + "users/getWallet/${curUserId}"),
+      );
       setState(() {
         saveStatus = true;
         walletList.clear();
       });
       if (response['status']) {
         var data = response["transactions"];
-        for(var v in data){
+        for (var v in data) {
           print(v['Note']);
           setState(() {
             walletList.add(new WalletModel.fromJson(v));
           });
-
         }
         print(data);
         totalBal = double.parse(response['amount'].toString());
-
       } else {
         setSnackbar(response['message'], context);
       }
@@ -99,6 +100,7 @@ class _WalletPageState extends State<WalletPage> {
       });
     }
   }
+
   List<WithdrawModel> withdrawList = [];
   getWithdraw() async {
     try {
@@ -115,15 +117,14 @@ class _WalletPageState extends State<WalletPage> {
       });
       if (response['status']) {
         var data = response["data"];
-        for(var v in data){
+        for (var v in data) {
           setState(() {
-            withdrawList.add(new WithdrawModel(v['id'], v['amount'], v['status'],v['added_date']));
+            withdrawList.add(new WithdrawModel(
+                v['id'], v['amount'], v['status'], v['added_date']));
           });
-
         }
         print(data);
         totalBal = double.parse(response['wallet'].toString());
-
       } else {
         setSnackbar(response['message'], context);
       }
@@ -134,6 +135,7 @@ class _WalletPageState extends State<WalletPage> {
       });
     }
   }
+
   bool loading = false;
   bool showWithdraw = false;
   addWallet(orderId) async {
@@ -143,7 +145,9 @@ class _WalletPageState extends State<WalletPage> {
       });
       Map params = {
         "user_id": curUserId.toString(),
-        "amount": amount.text.contains(".")?amount.text.toString().split(".")[0]:amount.text.toString(),
+        "amount": amount.text.contains(".")
+            ? amount.text.toString().split(".")[0]
+            : amount.text.toString(),
         "transaction_id": orderId.toString(),
         "txn_date": DateTime.now().toString(),
         "status": "Paid",
@@ -156,7 +160,7 @@ class _WalletPageState extends State<WalletPage> {
       });
       if (response['status']) {
         setSnackbar(response['message'], context);
-          getWallet();
+        getWallet();
       } else {
         setSnackbar(response['message'], context);
       }
@@ -167,6 +171,7 @@ class _WalletPageState extends State<WalletPage> {
       });
     }
   }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -175,11 +180,21 @@ class _WalletPageState extends State<WalletPage> {
     getWallet();
     getWithdraw();
   }
-  Future<bool> onWill(){
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>SearchLocationPage()), (route) => false);
+
+  Future<bool> onWill() {
+    Navigator.pop(context, true);
+    /* Navigator.popUntil(
+      context,
+      ModalRoute.withName('/'),
+    );*/
+    /*Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => SearchLocationPage()),
+        (route) => false);*/
 
     return Future.value();
   }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
@@ -189,37 +204,49 @@ class _WalletPageState extends State<WalletPage> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: AppTheme.primaryColor,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.black,
+            ),
+          ),
         ),
-        drawer: AppDrawer(false),
+        // drawer: AppDrawer(false),
         body: FadedSlideAnimation(
           SingleChildScrollView(
-            child: saveStatus?Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                          child: Text(
-                            getTranslated(context, "AVAILABLE_AMOUNT1")!,
-                            style:
-                            theme.textTheme.bodyText2!.copyWith(color: theme.hintColor),
+            child: saveStatus
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 16),
+                                child: Text(
+                                  getTranslated(context, "AVAILABLE_AMOUNT1")!,
+                                  style: theme.textTheme.bodyText2!
+                                      .copyWith(color: theme.hintColor),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 24),
+                                child: Text(
+                                  //\u{20B9}
+                                  '$totalBal RS',
+                                  style: theme.textTheme.headline4,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 24),
-                          child: Text(
-                            '\u{20B9}$totalBal',
-                            style: theme.textTheme.headline4,
-                          ),
-                        ),
-                      ],
-                    ),
-                    /*Column(
+                          /*Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Padding(
@@ -239,36 +266,39 @@ class _WalletPageState extends State<WalletPage> {
                         ),
                       ],
                     ),*/
-                  ],
-                ),
-                SizedBox(height: 32),
-                Container(
-                  width: getWidth(330),
-                  child: Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.center,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            showText=!showText;
-                          });
-                        },
-                        child: Container(
-                          width: 80.w,
-                          height: 5.h,
-                          decoration: boxDecoration(
-                              radius: 5,bgColor: Theme.of(context)
-                              .primaryColor),
-                          child: Center(
-                              child: text(showText?getTranslated(context, "HIDE")!:getTranslated(context, "ADD_MONEY")!,
-                                  fontFamily: fontMedium,
-                                  fontSize: 10.sp,
-                                  isCentered: true,
-                                  textColor: Colors.white)),
-                        ),
+                        ],
                       ),
-                     /* InkWell(
+                      SizedBox(height: 32),
+                      Container(
+                        width: getWidth(330),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  showText = !showText;
+                                });
+                              },
+                              child: Container(
+                                width: 80.w,
+                                height: 5.h,
+                                decoration: boxDecoration(
+                                    radius: 5,
+                                    bgColor: Theme.of(context).primaryColor),
+                                child: Center(
+                                    child: text(
+                                        showText
+                                            ? getTranslated(context, "HIDE")!
+                                            : getTranslated(
+                                                context, "ADD_MONEY")!,
+                                        fontFamily: fontMedium,
+                                        fontSize: 10.sp,
+                                        isCentered: true,
+                                        textColor: Colors.white)),
+                              ),
+                            ),
+                            /* InkWell(
                         onTap: () {
                           Navigator.push(
                             context,
@@ -290,60 +320,93 @@ class _WalletPageState extends State<WalletPage> {
                                   textColor: Colors.white)),
                         ),
                       ),*/
-                    ],
-                  ),
-                ),
-                boxHeight(10),
-                showText?Container(
-                  width: getWidth(330),
-                  decoration: boxDecoration(radius: 10,showShadow: true),
-                  child: Column(
-                    children: [
-                      EntryField(
-                        maxLength: 10,
-                        keyboardType: TextInputType.phone,
-                        controller: amount,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        label: "Enter Amount",
-                      ),
-                      boxHeight(10),
-                      InkWell(
-                        onTap: () {
-                          RazorPayHelper razorPay = new RazorPayHelper(amount.text, context, (result){
-                                if(result!="error"){
-                                  addWallet(result);
-                                }else{
-                                  setState(() {
-                                    loading = false;
-                                  });
-                                }
-                          });
-                          setState(() {
-                            loading = true;
-                          });
-                          razorPay.init();
-                        },
-                        child: Container(
-                          width: 80.w,
-                          height: 5.h,
-                          decoration: boxDecoration(
-                              radius: 5,
-                              bgColor: Theme.of(context)
-                                  .primaryColor),
-                          child: Center(
-                              child: !loading?text(getTranslated(context, "ADD_MONEY")!,
-                                  fontFamily: fontMedium,
-                                  fontSize: 10.sp,
-                                  isCentered: true,
-                                  textColor: Colors.white):CircularProgressIndicator(color: Colors.white,)),
+                          ],
                         ),
                       ),
                       boxHeight(10),
-                    ],
-                  ),
-                ):SizedBox(),
-                boxHeight(10),
-              /*  Container(
+                      showText
+                          ? Container(
+                              width: getWidth(330),
+                              decoration:
+                                  boxDecoration(radius: 10, showShadow: true),
+                              child: Column(
+                                children: [
+                                  EntryField(
+                                    maxLength: 10,
+                                    keyboardType: TextInputType.phone,
+                                    controller: amount,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    label: "Enter Amount",
+                                  ),
+                                  boxHeight(10),
+                                  InkWell(
+                                    onTap: () {
+                                      if (amount.text == "") {
+                                        setSnackbar(
+                                            "Please Enter Amount", context);
+                                        return;
+                                      }
+                                      /*KhaltiPayHelper khaltiPay =
+                                          new KhaltiPayHelper(
+                                              amount.text, context, (result) {
+                                        if (result != "error") {
+                                          addWallet(result);
+                                        } else {
+                                          setState(() {
+                                            loading = false;
+                                          });
+                                        }
+                                      });
+                                      setState(() {
+                                        loading = true;
+                                      });
+                                      khaltiPay.init();*/
+                                      RazorPayHelper razorPay =
+                                          new RazorPayHelper(
+                                              amount.text, context, (result) {
+                                        if (result != "error") {
+                                          addWallet(result);
+                                        } else {
+                                          setState(() {
+                                            loading = false;
+                                          });
+                                        }
+                                      });
+                                      setState(() {
+                                        loading = true;
+                                      });
+                                      razorPay.init();
+                                    },
+                                    child: Container(
+                                      width: 80.w,
+                                      height: 5.h,
+                                      decoration: boxDecoration(
+                                          radius: 5,
+                                          bgColor:
+                                              Theme.of(context).primaryColor),
+                                      child: Center(
+                                          child: !loading
+                                              ? text(
+                                                  getTranslated(
+                                                      context, "ADD_MONEY")!,
+                                                  fontFamily: fontMedium,
+                                                  fontSize: 10.sp,
+                                                  isCentered: true,
+                                                  textColor: Colors.white)
+                                              : CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                )),
+                                    ),
+                                  ),
+                                  boxHeight(10),
+                                ],
+                              ),
+                            )
+                          : SizedBox(),
+                      boxHeight(10),
+                      /*  Container(
                   width: getWidth(330),
                   child: text(totalBal<500?"Note-You need to add minimum \u{20B9}${minimumBal} to get booking request.":"Note-Please maintain \u{20B9}${minimumBal} minimum balance to take rides.",
                   fontSize: 10.sp,
@@ -351,17 +414,18 @@ class _WalletPageState extends State<WalletPage> {
                     textColor: Colors.red
                   ),
                 ),*/
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        getTranslated(context,'RECENT_TRANS')!,
-                        style:
-                            theme.textTheme.bodyText2!.copyWith(color: theme.hintColor),
-                      ),
-                      /*InkWell(
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              getTranslated(context, 'RECENT_TRANS')!,
+                              style: theme.textTheme.bodyText2!
+                                  .copyWith(color: theme.hintColor),
+                            ),
+                            /*InkWell(
                         onTap: (){
                           setState(() {
                             showWithdraw = !showWithdraw;
@@ -377,106 +441,147 @@ class _WalletPageState extends State<WalletPage> {
                           ),
                         ),
                       ),*/
+                          ],
+                        ),
+                      ),
+                      !showWithdraw
+                          ? saveStatus
+                              ? walletList.length > 0
+                                  ? ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemCount: walletList.length,
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) => Padding(
+                                        padding: EdgeInsets.only(bottom: 4.0),
+                                        child: ListTile(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 20, vertical: 6),
+                                          tileColor: theme.backgroundColor,
+                                          leading: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            child: Container(
+                                                height: getWidth(72),
+                                                width: getWidth(72),
+                                                child: Image.network(image,
+                                                    height: 60, width: 60)),
+                                          ),
+                                          title: Text(
+                                            "${getTranslated(context, "TRAN_ID")} - ${walletList[index].transactionId}",
+                                            style: theme.textTheme.headline6!
+                                                .copyWith(fontSize: 12.sp),
+                                          ),
+                                          subtitle: Text(
+                                            '${getDate(walletList[index].createdAt)}',
+                                            style: theme.textTheme.caption,
+                                          ),
+                                          trailing: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                '${walletList[index].amount} pts',
+                                                style: theme
+                                                    .textTheme.headline6!
+                                                    .copyWith(
+                                                        color: Colors.green,
+                                                        fontSize: 17),
+                                              ),
+                                              /*  SizedBox(height: 4),
+                          Text(
+                            context.getString(Strings.RIDE_INFO)! + '  >',
+                            style: theme.textTheme.caption!
+                                .copyWith(color: theme.primaryColor),
+                          ),*/
+                                            ],
+                                          ),
+                                          onTap: () => Navigator.pushNamed(
+                                              context, PageRoutes.rideInfoPage),
+                                        ),
+                                      ),
+                                    )
+                                  : Center(
+                                      child: text(
+                                          getTranslated(
+                                              context, "NO_TRANSACTION")!,
+                                          fontFamily: fontMedium,
+                                          fontSize: 12.sp,
+                                          textColor: Colors.black),
+                                    )
+                              : Center(child: CircularProgressIndicator())
+                          : saveStatus
+                              ? walletList.length > 0
+                                  ? ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemCount: withdrawList.length,
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) => Padding(
+                                        padding: EdgeInsets.only(bottom: 4.0),
+                                        child: ListTile(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 20, vertical: 6),
+                                          tileColor: theme.backgroundColor,
+                                          leading: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            child: Image.network(
+                                                image.toString(),
+                                                height: 60,
+                                                width: 60),
+                                          ),
+                                          title: Text(
+                                            withdrawList[index].status == "0"
+                                                ? "Status - Pending"
+                                                : withdrawList[index].status ==
+                                                        "1"
+                                                    ? "Status - Confirm"
+                                                    : "Status - Cancel",
+                                            style: theme.textTheme.headline6!
+                                                .copyWith(fontSize: 17),
+                                          ),
+                                          subtitle: Text(
+                                            '${getDate(withdrawList[index].added_date)}',
+                                            style: theme.textTheme.caption,
+                                          ),
+                                          trailing: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                ' \u{20B9}${withdrawList[index].amount}',
+                                                style: theme
+                                                    .textTheme.headline6!
+                                                    .copyWith(
+                                                        color: Colors.green,
+                                                        fontSize: 17),
+                                              ),
+                                              /*  SizedBox(height: 4),
+                          Text(
+                            context.getString(Strings.RIDE_INFO)! + '  >',
+                            style: theme.textTheme.caption!
+                                .copyWith(color: theme.primaryColor),
+                          ),*/
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Center(
+                                      child: text(
+                                          getTranslated(
+                                              context, "NO_WITHDRAWAL")!,
+                                          fontFamily: fontMedium,
+                                          fontSize: 12.sp,
+                                          textColor: Colors.black),
+                                    )
+                              : Center(child: CircularProgressIndicator())
                     ],
-                  ),
-                ),
-                !showWithdraw?saveStatus?walletList.length>0?ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: walletList.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) => Padding(
-                    padding: EdgeInsets.only(bottom: 4.0),
-                    child: ListTile(
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                      tileColor: theme.backgroundColor,
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                        height: getWidth(72),
-                          width:  getWidth(72),
-                            child: Image.network(image, height: 60, width: 60)),
-                      ),
-                      title: Text(
-                      "${getTranslated(context, "TRAN_ID")} - ${walletList[index].transactionId}",
-                        style: theme.textTheme.headline6!.copyWith(fontSize: 12.sp),
-                      ),
-                      subtitle: Text(
-                        '${getDate(walletList[index].createdAt)}',
-                        style: theme.textTheme.caption,
-                      ),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            ' \u{20B9}${walletList[index].amount}',
-                            style: theme.textTheme.headline6!
-                                .copyWith(color: Colors.green, fontSize: 17),
-                          ),
-                        /*  SizedBox(height: 4),
-                          Text(
-                            context.getString(Strings.RIDE_INFO)! + '  >',
-                            style: theme.textTheme.caption!
-                                .copyWith(color: theme.primaryColor),
-                          ),*/
-                        ],
-                      ),
-                      onTap: () =>
-                          Navigator.pushNamed(context, PageRoutes.rideInfoPage),
-                    ),
-                  ),
-                )
-                    :Center(
-                  child: text(getTranslated(context, "NO_TRANSACTION")!,fontFamily: fontMedium,fontSize: 12.sp,textColor: Colors.black),
-                ):Center(child: CircularProgressIndicator()):
-                saveStatus?walletList.length>0?ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: withdrawList.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) => Padding(
-                    padding: EdgeInsets.only(bottom: 4.0),
-                    child: ListTile(
-                      contentPadding:
-                      EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                      tileColor: theme.backgroundColor,
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(image.toString(), height: 60, width: 60),
-                      ),
-                      title: Text(
-                        withdrawList[index].status=="0"?"Status - Pending":withdrawList[index].status=="1"?"Status - Confirm":"Status - Cancel",
-                        style: theme.textTheme.headline6!.copyWith(fontSize: 17),
-                      ),
-                      subtitle: Text(
-                        '${getDate(withdrawList[index].added_date)}',
-                        style: theme.textTheme.caption,
-                      ),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            ' \u{20B9}${withdrawList[index].amount}',
-                            style: theme.textTheme.headline6!
-                                .copyWith(color: Colors.green, fontSize: 17),
-                          ),
-                          /*  SizedBox(height: 4),
-                          Text(
-                            context.getString(Strings.RIDE_INFO)! + '  >',
-                            style: theme.textTheme.caption!
-                                .copyWith(color: theme.primaryColor),
-                          ),*/
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-                    :Center(
-                  child: text(getTranslated(context, "NO_WITHDRAWAL")!,fontFamily: fontMedium,fontSize: 12.sp,textColor: Colors.black),
-                ):Center(child: CircularProgressIndicator())
-              ],
-            ):Center(child: CircularProgressIndicator()),
+                  )
+                : Center(child: CircularProgressIndicator()),
           ),
           beginOffset: Offset(0, 0.3),
           endOffset: Offset(0, 0),
@@ -486,7 +591,8 @@ class _WalletPageState extends State<WalletPage> {
     );
   }
 }
-class WithdrawModel{
-  String id,amount,status,added_date;
-  WithdrawModel(this.id, this.amount, this.status,this.added_date);
+
+class WithdrawModel {
+  String id, amount, status, added_date;
+  WithdrawModel(this.id, this.amount, this.status, this.added_date);
 }

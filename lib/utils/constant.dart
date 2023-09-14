@@ -27,24 +27,24 @@ const spacing_large = 24.0;
 const spacing_xlarge = 32.0;
 const spacing_xxLarge = 40.0;
 
-
 final int timeOut = 60;
 const int perPage = 10;
 
-final String appName = 'Sahayatri';
+final String appName = 'SM Cabs';
 bool notificationStatus = true;
 int notificationId = 1;
-final String packageName = 'com.sahayatri.user';
+final String packageName = 'com.smcabs.user';
 const String languageCode = 'languageCode';
 // final String baseUrl1 = 'https://productsalphawizz.com/taxi/api/';
 // final String baseUrl = 'https://productsalphawizz.com/taxi/api/Authentication/';
 final String baseUrl =
     //"https://192.168.0.50/TAXI_APP/Authentication";
-    'https://developmentalphawizz.com/taxi/api/Authentication/';
+    'http://smcab.in/api/Authentication/';
+    // 'https://developmentalphawizz.com/taxi/api/Authentication/';
 
 final String baseUrl1 =
     //"https://192.168.0.50/TAXI_APP/";
-    'https://developmentalphawizz.com/taxi/api/';
+    'http://smcab.in/api/';
 
 final String playUrl = "https://play.google.com/store/apps/details?id=$packageName";
 String? curUserId;
@@ -83,7 +83,7 @@ Widget boxWidth(double width){
 }
 
 Widget boxHeight(double height){
-  return SizedBox(height: getHeight(height),);
+  return SizedBox(height: getHeight(height));
 }
 navigateScreen(BuildContext context,Widget widget){
   Navigator.push(

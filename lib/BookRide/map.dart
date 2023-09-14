@@ -13,8 +13,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:ui' as ui;
 
-const double CAMERA_ZOOM = 15;
-const double CAMERA_TILT = 0;
+const double CAMERA_TILT = 40;
 const double CAMERA_BEARING = 30;
 
 double driveLat = 0, driveLng = 0;
@@ -30,15 +29,19 @@ class MapPage extends StatefulWidget {
   String? status1;
   bool live;
   String? id;
+  double zoom;
+  ValueChanged? onResult;
   MapPage(this.status,
       {this.SOURCE_LOCATION,
       this.DEST_LOCATION,
       required this.driveList,
       required this.live,
       this.model,
+      this.zoom = 15,
       this.id,
       this.pick = "",
       this.dest = "",
+      this.onResult,
       this.carType,
       this.status1});
 
@@ -60,7 +63,7 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
   // which generates every polyline between start and finish
   PolylinePoints polylinePoints = PolylinePoints();
   //todo change google map api
-  String googleAPIKey = "AIzaSyBmUCtQ_DlYKSU_BV7JdiyoOu1i4ybe-z0";
+  String googleAPIKey = "AIzaSyDPsdTq-a4AHYHSNvQsdAlZgWvRu11T9pM";
   // for my custom icons
   BitmapDescriptor? sourceIcon;
   BitmapDescriptor? driverIcon;
@@ -68,24 +71,29 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
   LatLng? SOURCE_LOCATION;
   LatLng? DEST_LOCATION;
   Timer? timer;
+  double zoom = 0;
   String km = "", time = "";
   @override
   void initState() {
     super.initState();
-    setSourceAndDestinationIcons();
+
     driveLat = 0;
+    zoom = widget.zoom;
     driveLng = 0;
     if (widget.live) {
-      timer = Timer.periodic(Duration(seconds: 5), (timer) {
-        getDriver();
+      getDriver(true);
+      timer = Timer.periodic(Duration(seconds: 10), (timer) {
+        getDriver(false);
       });
-    } else {}
+    } else {
+      setSourceAndDestinationIcons();
+    }
   }
 
   ApiBaseHelper apiBase = new ApiBaseHelper();
   bool isNetwork = false;
   bool acceptStatus = false;
-  getDriver() async {
+  getDriver(bool first) async {
     await App.init();
     isNetwork = await isNetworkAvailable();
     if (isNetwork) {
@@ -105,9 +113,17 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
           Map data = response['data'];
           driveLat = double.parse(data['latitude']);
           driveLng = double.parse(data['longitude']);
+          if (widget.onResult != null) {
+            widget.onResult!({
+              "lat": driveLat,
+              "lng": driveLng,
+            });
+          }
+          if (first) {
+            setSourceAndDestinationIcons();
+          } else {}
           if (!acceptStatus) {
             acceptStatus = true;
-            setPolylines();
           }
 
           //      setSourceAndDestinationIcons();
@@ -151,7 +167,7 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
     // every time the location changes, so the camera
     // follows the pin as it moves with an animation
     CameraPosition cPosition = CameraPosition(
-      zoom: CAMERA_ZOOM,
+      zoom: zoom,
       tilt: CAMERA_TILT,
       bearing: CAMERA_BEARING,
       target: LatLng(driveLat, driveLng),
@@ -160,27 +176,32 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
     controller.animateCamera(CameraUpdate.newCameraPosition(cPosition));
     // do this inside the setState() so Flutter gets notified
     // that a widget update is due
-    setState(() {
-      // updated position
-      var pinPosition = LatLng(driveLat, driveLng);
-      if (widget.model != null &&
-          widget.model!.start_time != null &&
-          widget.model!.start_time != "") {
-        List<String> calTime = widget.model!.start_time!.split(":");
-        DateTime firstTime = DateTime(DateTime.now().year, DateTime.now().month,
-            DateTime.now().day, int.parse(calTime[0]), int.parse(calTime[1]));
-        print(calTime.toString());
-        time =
-            "00:" + DateTime.now().difference(firstTime).inMinutes.toString();
-      }
-      // the trick is to remove the marker (by id)
-      // and add it again at the updated location
-      _markers.removeWhere((m) => m.markerId.value == 'drivePin');
-      _markers.add(Marker(
-          markerId: MarkerId('drivePin'),
-          position: pinPosition, // updated position
-          icon: driverIcon!));
-    });
+    if (mounted)
+      setState(() {
+        // updated position
+        var pinPosition = LatLng(driveLat, driveLng);
+        if (widget.model != null &&
+            widget.model!.start_time != null &&
+            widget.model!.start_time != "") {
+          List<String> calTime = widget.model!.start_time!.split(":");
+          DateTime firstTime = DateTime(
+              DateTime.now().year,
+              DateTime.now().month,
+              DateTime.now().day,
+              int.parse(calTime[0]),
+              int.parse(calTime[1]));
+          print(calTime.toString());
+          time =
+              "00:" + DateTime.now().difference(firstTime).inMinutes.toString();
+        }
+        // the trick is to remove the marker (by id)
+        // and add it again at the updated location
+        _markers.removeWhere((m) => m.markerId.value == 'drivePin');
+        _markers.add(Marker(
+            markerId: MarkerId('drivePin'),
+            position: pinPosition, // updated position
+            icon: driverIcon!));
+      });
   }
 
   void setSourceAndDestinationIcons() async {
@@ -189,25 +210,24 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
     if (widget.live) {
       if (widget.carType == "1") {
         driverIcon = await BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(devicePixelRatio: 0.2),
-            'assets/cars/map_car.png');
+            ImageConfiguration(devicePixelRatio: 0.2), 'assets/driving.png');
       } else {
         driverIcon = await BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(devicePixelRatio: 2.5), 'assets/driving.png');
+            ImageConfiguration(devicePixelRatio: 0.2), 'assets/driving.png');
       }
     }
-
     destinationIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5),
         'assets/destination_map_marker.png');
     if (widget.status) {
-      setState(() {
-        SOURCE_LOCATION = widget.SOURCE_LOCATION;
-        DEST_LOCATION = widget.DEST_LOCATION;
-        if (!widget.live) {
-          setPolylines();
-        }
-      });
+      SOURCE_LOCATION = widget.SOURCE_LOCATION;
+      DEST_LOCATION = widget.DEST_LOCATION;
+      setMapPins();
+      setPolylines();
+
+      /* if (widget.live) {
+
+      }*/
     }
   }
 
@@ -221,7 +241,7 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     CameraPosition initialLocation = CameraPosition(
-        zoom: CAMERA_ZOOM,
+        zoom: zoom,
         bearing: CAMERA_BEARING,
         tilt: CAMERA_TILT,
         target: widget.SOURCE_LOCATION!);
@@ -241,9 +261,9 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
     // controller.setMapStyle(Utils.mapStyles);
     _controller.complete(controller);
     var nLat, nLon, sLat, sLon;
-    if (widget.status) {
-      SOURCE_LOCATION = widget.SOURCE_LOCATION;
-      DEST_LOCATION = widget.DEST_LOCATION;
+    SOURCE_LOCATION = widget.SOURCE_LOCATION;
+    DEST_LOCATION = widget.DEST_LOCATION;
+    if (widget.status && SOURCE_LOCATION != null && DEST_LOCATION != null) {
       if (DEST_LOCATION!.latitude <= SOURCE_LOCATION!.latitude) {
         sLat = DEST_LOCATION!.latitude;
         nLat = SOURCE_LOCATION!.latitude;
@@ -264,7 +284,7 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
       controller.animateCamera(u2).then((void v) {});
     }
     if (widget.status) {
-      setMapPins();
+      //setMapPins();
       //setPolylines();
     }
   }
@@ -287,7 +307,6 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
             position: SOURCE_LOCATION!,
             icon: driverIcon!));
       }
-
       // destination pin
       _markers.add(Marker(
           markerId: MarkerId('destPin'),
@@ -335,10 +354,7 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
 
   setPolylines() async {
     _polylines.clear();
-    if (widget.status1 != null &&
-        widget.status1 == "1" &&
-        driveLat != 0 &&
-        widget.live) {
+    if (widget.live && widget.status1 != null && widget.status1 == "1") {
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
           googleAPIKey,
           PointLatLng(driveLat, driveLng),
@@ -405,6 +421,46 @@ class MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
         _polylines.add(polyline);
       });
     }
+
+    /*if (widget.status1 != null &&
+        widget.status1 == "1" &&
+        driveLat != 0 &&
+        widget.live) {
+      PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+          googleAPIKey,
+          PointLatLng(driveLat, driveLng),
+          PointLatLng(SOURCE_LOCATION!.latitude, SOURCE_LOCATION!.longitude),
+          travelMode: TravelMode.driving,
+          optimizeWaypoints: true);
+      print("${result.points} >>>>>>>>>>>>>>>>..");
+      print("$SOURCE_LOCATION >>>>>>>>>>>>>>>>..");
+      print("$DEST_LOCATION >>>>>>>>>>>>>>>>..");
+      print(result.errorMessage);
+      if (result.points.isNotEmpty) {
+        // loop through all PointLatLng points and convert them
+        // to a list of LatLng, required by the Polyline
+        result.points.forEach((PointLatLng point) {
+          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+        });
+      } else {
+        print("Failed");
+      }
+      setState(() {
+        // create a Polyline instance
+        // with an id, an RGB color and the list of LatLng pairs
+        Polyline polyline = Polyline(
+            width: 5,
+            polylineId: PolylineId("poly"),
+            color: AppTheme.primaryColor,
+            points: polylineCoordinates);
+        // add the constructed polyline as a set of points
+        // to the polyline set, which will eventually
+        // end up showing up on the map
+        _polylines.add(polyline);
+      });
+    } else {
+
+    }*/
   }
 }
 

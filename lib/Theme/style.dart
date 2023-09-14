@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static String fontFamily = '';
-  static Color primaryColor = Color(0xff2CC8DE);
+  static Color primaryColor = Color(0xff589605);
   static Color hintColor = Colors.black;
   static Color ratingsColor = Color(0xff51971B);
   static Color starColor = Color(0xffB6E025);
@@ -11,7 +11,7 @@ class AppTheme {
     scaffoldBackgroundColor: Colors.black,
     primaryColor: primaryColor,
     hintColor: hintColor,
-    backgroundColor: Color(0xff41dbde),
+    backgroundColor: Color(0xff589605),
     primaryColorLight: Colors.white,
     dividerColor: hintColor,
     cardColor: Color(0xff202020),
@@ -34,7 +34,7 @@ class AppTheme {
   );
 
   static ThemeData lightTheme = ThemeData(
-    scaffoldBackgroundColor: Color(0xff2CC8DE),
+    scaffoldBackgroundColor: Color(0xff589605),
     primaryColor: primaryColor,
     hintColor: hintColor,
     backgroundColor: Colors.white,

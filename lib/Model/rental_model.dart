@@ -4,13 +4,14 @@
 
 class RentalModel {
   RentalModel({
-      bool? status, 
-      List<BikeData>? bikeData, 
-      List<CarData>? carData,}){
+    bool? status,
+    List<BikeData>? bikeData,
+    List<CarData>? carData,
+  }) {
     _status = status;
     _bikeData = bikeData;
     _carData = carData;
-}
+  }
 
   RentalModel.fromJson(dynamic json) {
     _status = json['status'];
@@ -30,13 +31,16 @@ class RentalModel {
   bool? _status;
   List<BikeData>? _bikeData;
   List<CarData>? _carData;
-RentalModel copyWith({  bool? status,
-  List<BikeData>? bikeData,
-  List<CarData>? carData,
-}) => RentalModel(  status: status ?? _status,
-  bikeData: bikeData ?? _bikeData,
-  carData: carData ?? _carData,
-);
+  RentalModel copyWith({
+    bool? status,
+    List<BikeData>? bikeData,
+    List<CarData>? carData,
+  }) =>
+      RentalModel(
+        status: status ?? _status,
+        bikeData: bikeData ?? _bikeData,
+        carData: carData ?? _carData,
+      );
   bool? get status => _status;
   List<BikeData>? get bikeData => _bikeData;
   List<CarData>? get carData => _carData;
@@ -52,7 +56,6 @@ RentalModel copyWith({  bool? status,
     }
     return map;
   }
-
 }
 
 /// id : "47"
@@ -74,23 +77,26 @@ RentalModel copyWith({  bool? status,
 
 class CarData {
   CarData({
-      String? id, 
-      String? carCategories, 
-      dynamic hours, 
-      dynamic fixedRate, 
-      String? ratePerHour, 
-      String? cartype, 
-      String? status, 
-      String? cancellationCharges, 
-      String? ratePerKm, 
-      String? taxes, 
-      List<HoursData>? hoursData, 
-      String? carTypeId, 
-      String? carImage, 
-      String? carModel, 
-      String? cabId, 
-      String? carName,}){
+    String? id,
+    String? carCategories,
+    dynamic hours,
+    dynamic fixedRate,
+    String? ratePerHour,
+    String? cartype,
+    String? status,
+    String? cancellationCharges,
+    String? ratePerKm,
+    String? admin_commission,
+    String? taxes,
+    List<HoursData>? hoursData,
+    String? carTypeId,
+    String? carImage,
+    String? carModel,
+    String? cabId,
+    String? carName,
+  }) {
     _id = id;
+    _admin_commission = admin_commission;
     _carCategories = carCategories;
     _hours = hours;
     _fixedRate = fixedRate;
@@ -106,12 +112,13 @@ class CarData {
     _carModel = carModel;
     _cabId = cabId;
     _carName = carName;
-}
+  }
 
   CarData.fromJson(dynamic json) {
     _id = json['id'];
     _carCategories = json['car_categories'];
     _hours = json['hours'];
+    _admin_commission = json['admin_commission'];
     _fixedRate = json['fixed_rate'];
     _ratePerHour = json['rate_per_hour'];
     _cartype = json['cartype'];
@@ -136,6 +143,7 @@ class CarData {
   dynamic _hours;
   dynamic _fixedRate;
   String? _ratePerHour;
+  String? _admin_commission;
   String? _cartype;
   String? _status;
   String? _cancellationCharges;
@@ -147,45 +155,49 @@ class CarData {
   String? _carModel;
   String? _cabId;
   String? _carName;
-CarData copyWith({  String? id,
-  String? carCategories,
-  dynamic hours,
-  dynamic fixedRate,
-  String? ratePerHour,
-  String? cartype,
-  String? status,
-  String? cancellationCharges,
-  String? ratePerKm,
-  String? taxes,
-  List<HoursData>? hoursData,
-  String? carTypeId,
-  String? carImage,
-  String? carModel,
-  String? cabId,
-  String? carName,
-}) => CarData(  id: id ?? _id,
-  carCategories: carCategories ?? _carCategories,
-  hours: hours ?? _hours,
-  fixedRate: fixedRate ?? _fixedRate,
-  ratePerHour: ratePerHour ?? _ratePerHour,
-  cartype: cartype ?? _cartype,
-  status: status ?? _status,
-  cancellationCharges: cancellationCharges ?? _cancellationCharges,
-  ratePerKm: ratePerKm ?? _ratePerKm,
-  taxes: taxes ?? _taxes,
-  hoursData: hoursData ?? _hoursData,
-  carTypeId: carTypeId ?? _carTypeId,
-  carImage: carImage ?? _carImage,
-  carModel: carModel ?? _carModel,
-  cabId: cabId ?? _cabId,
-  carName: carName ?? _carName,
-);
+  CarData copyWith({
+    String? id,
+    String? carCategories,
+    dynamic hours,
+    dynamic fixedRate,
+    String? ratePerHour,
+    String? cartype,
+    String? status,
+    String? cancellationCharges,
+    String? ratePerKm,
+    String? taxes,
+    List<HoursData>? hoursData,
+    String? carTypeId,
+    String? carImage,
+    String? carModel,
+    String? cabId,
+    String? carName,
+  }) =>
+      CarData(
+        id: id ?? _id,
+        carCategories: carCategories ?? _carCategories,
+        hours: hours ?? _hours,
+        fixedRate: fixedRate ?? _fixedRate,
+        ratePerHour: ratePerHour ?? _ratePerHour,
+        cartype: cartype ?? _cartype,
+        status: status ?? _status,
+        cancellationCharges: cancellationCharges ?? _cancellationCharges,
+        ratePerKm: ratePerKm ?? _ratePerKm,
+        taxes: taxes ?? _taxes,
+        hoursData: hoursData ?? _hoursData,
+        carTypeId: carTypeId ?? _carTypeId,
+        carImage: carImage ?? _carImage,
+        carModel: carModel ?? _carModel,
+        cabId: cabId ?? _cabId,
+        carName: carName ?? _carName,
+      );
   String? get id => _id;
   String? get carCategories => _carCategories;
   dynamic get hours => _hours;
   dynamic get fixedRate => _fixedRate;
   String? get ratePerHour => _ratePerHour;
   String? get cartype => _cartype;
+  String? get admin_commission => _admin_commission;
   String? get status => _status;
   String? get cancellationCharges => _cancellationCharges;
   String? get ratePerKm => _ratePerKm;
@@ -219,7 +231,6 @@ CarData copyWith({  String? id,
     map['car_name'] = _carName;
     return map;
   }
-
 }
 
 /// hours : "30"
@@ -228,13 +239,14 @@ CarData copyWith({  String? id,
 
 class HoursData {
   HoursData({
-      String? hours, 
-      String? fixedAmount, 
-      String? fixedKm,}){
+    String? hours,
+    String? fixedAmount,
+    String? fixedKm,
+  }) {
     _hours = hours;
     _fixedAmount = fixedAmount;
     _fixedKm = fixedKm;
-}
+  }
 
   HoursData.fromJson(dynamic json) {
     _hours = json['hours'];
@@ -244,13 +256,16 @@ class HoursData {
   String? _hours;
   String? _fixedAmount;
   String? _fixedKm;
-HoursData copyWith({  String? hours,
-  String? fixedAmount,
-  String? fixedKm,
-}) => HoursData(  hours: hours ?? _hours,
-  fixedAmount: fixedAmount ?? _fixedAmount,
-  fixedKm: fixedKm ?? _fixedKm,
-);
+  HoursData copyWith({
+    String? hours,
+    String? fixedAmount,
+    String? fixedKm,
+  }) =>
+      HoursData(
+        hours: hours ?? _hours,
+        fixedAmount: fixedAmount ?? _fixedAmount,
+        fixedKm: fixedKm ?? _fixedKm,
+      );
   String? get hours => _hours;
   String? get fixedAmount => _fixedAmount;
   String? get fixedKm => _fixedKm;
@@ -262,7 +277,6 @@ HoursData copyWith({  String? hours,
     map['fixed_km'] = _fixedKm;
     return map;
   }
-
 }
 
 /// id : null
@@ -284,25 +298,28 @@ HoursData copyWith({  String? hours,
 
 class BikeData {
   BikeData({
-      dynamic id, 
-      String? carCategories, 
-      dynamic hours, 
-      dynamic fixedRate, 
-      String? ratePerHour, 
-      String? cartype, 
-      dynamic status, 
-      String? cancellationCharges, 
-      String? ratePerKm, 
-      String? taxes, 
-      List<HoursData>? hoursData, 
-      dynamic carTypeId, 
-      dynamic carImage, 
-      dynamic carModel, 
-      String? cabId, 
-      dynamic carName,}){
+    dynamic id,
+    String? carCategories,
+    dynamic hours,
+    dynamic fixedRate,
+    String? ratePerHour,
+    String? cartype,
+    dynamic status,
+    String? cancellationCharges,
+    String? ratePerKm,
+    String? taxes,
+    String? admin_commission,
+    List<HoursData>? hoursData,
+    dynamic carTypeId,
+    dynamic carImage,
+    dynamic carModel,
+    String? cabId,
+    dynamic carName,
+  }) {
     _id = id;
     _carCategories = carCategories;
     _hours = hours;
+    _admin_commission = admin_commission;
     _fixedRate = fixedRate;
     _ratePerHour = ratePerHour;
     _cartype = cartype;
@@ -316,12 +333,13 @@ class BikeData {
     _carModel = carModel;
     _cabId = cabId;
     _carName = carName;
-}
+  }
 
   BikeData.fromJson(dynamic json) {
     _id = json['id'];
     _carCategories = json['car_categories'];
     _hours = json['hours'];
+    _admin_commission = json['admin_commission'];
     _fixedRate = json['fixed_rate'];
     _ratePerHour = json['rate_per_hour'];
     _cartype = json['cartype'];
@@ -350,6 +368,7 @@ class BikeData {
   dynamic _status;
   String? _cancellationCharges;
   String? _ratePerKm;
+  String? _admin_commission;
   String? _taxes;
   List<HoursData>? _hoursData;
   dynamic _carTypeId;
@@ -357,39 +376,42 @@ class BikeData {
   dynamic _carModel;
   String? _cabId;
   dynamic _carName;
-BikeData copyWith({  dynamic id,
-  String? carCategories,
-  dynamic hours,
-  dynamic fixedRate,
-  String? ratePerHour,
-  String? cartype,
-  dynamic status,
-  String? cancellationCharges,
-  String? ratePerKm,
-  String? taxes,
-  List<HoursData>? hoursData,
-  dynamic carTypeId,
-  dynamic carImage,
-  dynamic carModel,
-  String? cabId,
-  dynamic carName,
-}) => BikeData(  id: id ?? _id,
-  carCategories: carCategories ?? _carCategories,
-  hours: hours ?? _hours,
-  fixedRate: fixedRate ?? _fixedRate,
-  ratePerHour: ratePerHour ?? _ratePerHour,
-  cartype: cartype ?? _cartype,
-  status: status ?? _status,
-  cancellationCharges: cancellationCharges ?? _cancellationCharges,
-  ratePerKm: ratePerKm ?? _ratePerKm,
-  taxes: taxes ?? _taxes,
-  hoursData: hoursData ?? _hoursData,
-  carTypeId: carTypeId ?? _carTypeId,
-  carImage: carImage ?? _carImage,
-  carModel: carModel ?? _carModel,
-  cabId: cabId ?? _cabId,
-  carName: carName ?? _carName,
-);
+  BikeData copyWith({
+    dynamic id,
+    String? carCategories,
+    dynamic hours,
+    dynamic fixedRate,
+    String? ratePerHour,
+    String? cartype,
+    dynamic status,
+    String? cancellationCharges,
+    String? ratePerKm,
+    String? taxes,
+    List<HoursData>? hoursData,
+    dynamic carTypeId,
+    dynamic carImage,
+    dynamic carModel,
+    String? cabId,
+    dynamic carName,
+  }) =>
+      BikeData(
+        id: id ?? _id,
+        carCategories: carCategories ?? _carCategories,
+        hours: hours ?? _hours,
+        fixedRate: fixedRate ?? _fixedRate,
+        ratePerHour: ratePerHour ?? _ratePerHour,
+        cartype: cartype ?? _cartype,
+        status: status ?? _status,
+        cancellationCharges: cancellationCharges ?? _cancellationCharges,
+        ratePerKm: ratePerKm ?? _ratePerKm,
+        taxes: taxes ?? _taxes,
+        hoursData: hoursData ?? _hoursData,
+        carTypeId: carTypeId ?? _carTypeId,
+        carImage: carImage ?? _carImage,
+        carModel: carModel ?? _carModel,
+        cabId: cabId ?? _cabId,
+        carName: carName ?? _carName,
+      );
   dynamic get id => _id;
   String? get carCategories => _carCategories;
   dynamic get hours => _hours;
@@ -399,6 +421,7 @@ BikeData copyWith({  dynamic id,
   dynamic get status => _status;
   String? get cancellationCharges => _cancellationCharges;
   String? get ratePerKm => _ratePerKm;
+  String? get admin_commission => _admin_commission;
   String? get taxes => _taxes;
   List<HoursData>? get hoursData => _hoursData;
   dynamic get carTypeId => _carTypeId;
@@ -429,7 +452,6 @@ BikeData copyWith({  dynamic id,
     map['car_name'] = _carName;
     return map;
   }
-
 }
 
 /// hours : "15"

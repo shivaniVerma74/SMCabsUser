@@ -17,7 +17,9 @@ class RowItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          getTranslated(context,title)!,
+          getTranslated(context, title) != null
+              ? getTranslated(context, title)!
+              : title,
           style: theme.textTheme.headline6!
               .copyWith(color: theme.hintColor, fontSize: 16),
         ),

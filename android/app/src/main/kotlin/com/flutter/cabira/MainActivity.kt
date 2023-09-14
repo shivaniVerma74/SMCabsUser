@@ -1,4 +1,4 @@
-package com.sahayatri.user
+package com.smcabs.user
 
 import io.flutter.embedding.android.FlutterActivity
 

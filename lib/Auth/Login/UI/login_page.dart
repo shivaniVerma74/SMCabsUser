@@ -6,7 +6,6 @@ import 'package:cabira/utils/location_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
-import 'package:geocoder/geocoder.dart';
 import 'package:location/location.dart';
 import '../../../utils/referCodeService.dart';
 import '../../login_navigator.dart';
@@ -19,12 +18,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> implements LoginInteractor {
-
-
   void listenDeepLinkData(BuildContext context) async {
     FlutterBranchSdk.initSession().listen((data) {
       //print("data"+data.toString());
-      if(data['refer_code']!=null){
+      if (data['refer_code'] != null) {
         tempRefer = data['refer_code'];
       }
       //print("temp = $tempRefer");
@@ -34,31 +31,36 @@ class _LoginPageState extends State<LoginPage> implements LoginInteractor {
     });
     changePage();
   }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    PushNotificationService notificationService = new PushNotificationService(context: context,onResult: (result){
-
-    });
+    PushNotificationService notificationService =
+        new PushNotificationService(context: context, onResult: (result) {});
     notificationService.initialise();
-
+    //listenDeepLinkData(context);
     changePage();
   }
-  changePage()async{
+
+  changePage() async {
     await App.init();
-    if(App.localStorage.getString("userId")!=null){
+    if (App.localStorage.getString("userId") != null) {
       curUserId = App.localStorage.getString("userId").toString();
-    /*  GetLocation location = new GetLocation((result){
+      /*  GetLocation location = new GetLocation((result){
         address = result.first.addressLine;
         latitude = result.first.coordinates.latitude;
         longitude = result.first.coordinates.longitude;
       });
       location.getLoc();*/
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> SearchLocationPage()), (route) => false);
-
+      Navigator.popAndPushNamed(context, "/");
+      // Navigator.pushAndRemoveUntil(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => SearchLocationPage()),
+      //     (route) => false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return LoginUI(this);
