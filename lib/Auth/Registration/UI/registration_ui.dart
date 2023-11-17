@@ -19,7 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker_gallery_camera/image_picker_gallery_camera.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
 import '../../../Theme/style.dart';
@@ -212,7 +212,7 @@ class _RegistrationUIState extends State<RegistrationUI> {
                 start: 24,
                 child: InkWell(
                   onTap: () {
-                    requestPermission(context);
+                    requestPermission(context, 1);
                   },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
@@ -293,54 +293,106 @@ class _RegistrationUIState extends State<RegistrationUI> {
     );
   }
 
-  void requestPermission(BuildContext context) async {
-    if (await Permission.camera.isPermanentlyDenied ||
-        await Permission.storage.isPermanentlyDenied) {
-      // The user opted to never again see the permission request dialog for this
-      // app. The only way to change the permission's status now is to let the
-      // user manually enable it in the system settings.
-      openAppSettings();
-    } else {
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.camera,
-        Permission.storage,
-      ].request();
-// You can request multiple permissions at once.
-      if (statuses[Permission.camera] == PermissionStatus.granted &&
-          statuses[Permission.storage] == PermissionStatus.granted) {
-        getImage(ImgSource.Both, context);
-      } else {
-        if (await Permission.camera.isDenied ||
-            await Permission.storage.isDenied) {
-          // The user opted to never again see the permission request dialog for this
-          // app. The only way to change the permission's status now is to let the
-          // user manually enable it in the system settings.
-          openAppSettings();
-        } else {
-          setSnackbar("Oops you just denied the permission", context);
-        }
-      }
-    }
+  // void requestPermission(BuildContext context) async {
+  //   if (await Permission.camera.isPermanentlyDenied ||
+  //       await Permission.storage.isPermanentlyDenied) {
+  //     // The user opted to never again see the permission request dialog for this
+  //     // app. The only way to change the permission's status now is to let the
+  //     // user manually enable it in the system settings.
+  //     openAppSettings();
+  //   } else {
+  //     Map<Permission, PermissionStatus> statuses = await [
+  //       Permission.camera,
+  //       Permission.storage,
+  //     ].request();
+  //     // You can request multiple permissions at once.
+  //     if (statuses[Permission.camera] == PermissionStatus.granted &&
+  //         statuses[Permission.storage] == PermissionStatus.granted) {
+  //       getImage(ImgSource.Both, context);
+  //     } else {
+  //       if (await Permission.camera.isDenied ||
+  //           await Permission.storage.isDenied) {
+  //         // The user opted to never again see the permission request dialog for this
+  //         // app. The only way to change the permission's status now is to let the
+  //         // user manually enable it in the system settings.
+  //         openAppSettings();
+  //       } else {
+  //         setSnackbar("Oops you just denied the permission", context);
+  //       }
+  //     }
+  //   }
+  // }
+
+  void requestPermission(BuildContext context, int i) async{
+    return await showDialog<void>(
+      context: context,
+      // barrierDismissible: barrierDismissible, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(6))),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              InkWell(
+                onTap: () async {
+                  getCamera(ImageSource.gallery, context);
+                },
+                child: Container(
+                  child: ListTile(
+                    title:  Text("Gallery"),
+                    leading: Icon(
+                        Icons.image,
+                        color: AppTheme.primaryColor
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                width: 200,
+                height: 1,
+                color: Colors.black12,
+              ),
+              InkWell(
+                onTap: () async {
+                  getImage(ImageSource.camera, context);
+                },
+                child: Container(
+                  child: ListTile(
+                    title:  Text("Camera"),
+                    leading: Icon(
+                        Icons.camera,
+                        color: AppTheme.primaryColor
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   File? _image;
-  Future getImage(ImgSource source, BuildContext context) async {
-    var image = await ImagePickerGC.pickImage(
-      context: context,
-      source: source,
-      maxHeight: 480,
-      maxWidth: 480,
-      imageQuality: 60,
-      cameraIcon: Icon(
-        Icons.add,
-        color: Colors.red,
-      ), //cameraIcon and galleryIcon can change. If no icon provided default icon will be present
-    );
-    setState(() {
-      _image = File(image.path);
-      getCropImage(context);
-    });
-  }
+  // Future getImage(ImgSource source, BuildContext context) async {
+  //   var image = await ImagePickerGC.pickImage(
+  //     context: context,
+  //     source: source,
+  //     maxHeight: 480,
+  //     maxWidth: 480,
+  //     imageQuality: 60,
+  //     cameraIcon: Icon(
+  //       Icons.add,
+  //       color: Colors.red,
+  //     ), //cameraIcon and galleryIcon can change. If no icon provided default icon will be present
+  //   );
+  //   setState(() {
+  //     _image = File(image.path);
+  //     getCropImage(context);
+  //   });
+  // }
 
   void getCropImage(BuildContext context) async {
     File? croppedFile = await ImageCropper().cropImage(
@@ -350,7 +402,7 @@ class _RegistrationUIState extends State<RegistrationUI> {
           CropAspectRatioPreset.ratio3x2,
           CropAspectRatioPreset.original,
           CropAspectRatioPreset.ratio4x3,
-          CropAspectRatioPreset.ratio16x9
+          CropAspectRatioPreset.ratio16x9,
         ],
         compressQuality: 40,
         androidUiSettings: AndroidUiSettings(
@@ -366,6 +418,30 @@ class _RegistrationUIState extends State<RegistrationUI> {
       _image = croppedFile;
     });
   }
+
+
+  final imagePicker = ImagePicker();
+  Future getCamera(ImageSource source, BuildContext context) async {
+    var image = await imagePicker.pickImage(
+      source: source,
+    );
+    setState(() {
+      _image = File(image?.path ?? '');
+      // getCropImage(context);
+    });
+  }
+
+  Future getImage(ImageSource source, BuildContext context) async {
+    var image = await imagePicker.pickImage(
+      source: source,
+      //cameraIcon and galleryIcon can change. If no icon provided default icon will be present
+    );
+    setState(() {
+      _image = File(image?.path ?? '');
+      getCropImage(context);
+    });
+  }
+
 
   DateTime startDate =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);

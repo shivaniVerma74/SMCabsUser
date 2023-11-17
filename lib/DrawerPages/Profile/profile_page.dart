@@ -18,7 +18,7 @@ import 'package:cabira/Locale/locale.dart';
 import 'package:cabira/Locale/strings_enum.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker_gallery_camera/image_picker_gallery_camera.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
@@ -226,7 +226,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       start: 24,
                       child: InkWell(
                         onTap: () {
-                          requestPermission(context);
+                          reqPermission(context, 1);
+                          // requestPermission(context);
                         },
                         child: Container(
                           height: 100,
@@ -333,55 +334,81 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void requestPermission(BuildContext context) async {
-    if (await Permission.camera.isPermanentlyDenied ||
-        await Permission.storage.isPermanentlyDenied) {
-      // The user opted to never again see the permission request dialog for this
-      // app. The only way to change the permission's status now is to let the
-      // user manually enable it in the system settings.
-      openAppSettings();
-    } else {
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.camera,
-        Permission.storage,
-      ].request();
-// You can request multiple permissions at once.
+//   void requestPermission(BuildContext context) async {
+//     if (await Permission.camera.isPermanentlyDenied ||
+//         await Permission.storage.isPermanentlyDenied) {
+//       // The user opted to never again see the permission request dialog for this
+//       // app. The only way to change the permission's status now is to let the
+//       // user manually enable it in the system settings.
+//       openAppSettings();
+//     } else {
+//       Map<Permission, PermissionStatus> statuses = await [
+//         Permission.camera,
+//         Permission.storage,
+//       ].request();
+// // You can request multiple permissions at once.
+//
+//       if (statuses[Permission.camera] == PermissionStatus.granted &&
+//           statuses[Permission.storage] == PermissionStatus.granted) {
+//         getImage(ImgSource.Both, context);
+//       } else {
+//         if (await Permission.camera.isDenied ||
+//             await Permission.storage.isDenied) {
+//           // The user opted to never again see the permission request dialog for this
+//           // app. The only way to change the permission's status now is to let the
+//           // user manually enable it in the system settings.
+//           openAppSettings();
+//         } else {
+//           setSnackbar("Oops you just denied the permission", context);
+//         }
+//       }
+//     }
+//   }
 
-      if (statuses[Permission.camera] == PermissionStatus.granted &&
-          statuses[Permission.storage] == PermissionStatus.granted) {
-        getImage(ImgSource.Both, context);
-      } else {
-        if (await Permission.camera.isDenied ||
-            await Permission.storage.isDenied) {
-          // The user opted to never again see the permission request dialog for this
-          // app. The only way to change the permission's status now is to let the
-          // user manually enable it in the system settings.
-          openAppSettings();
-        } else {
-          setSnackbar("Oops you just denied the permission", context);
-        }
-      }
+  void reqPermission(BuildContext context,int i) async{
+    print("okay");
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.photos,
+      Permission.mediaLibrary,
+      Permission.storage,
+    ].request();
+    if(statuses[Permission.photos] == PermissionStatus.granted && statuses[Permission.mediaLibrary] == PermissionStatus.granted){
+      // getCamera(ImageSource.gallery, context);
+    }else{
+      getImage(ImageSource.gallery, context);
     }
   }
 
+  final imagePicker = ImagePicker();
   File? _image;
-  Future getImage(ImgSource source, BuildContext context) async {
-    var image = await ImagePickerGC.pickImage(
-      context: context,
+  Future getImage(ImageSource source, BuildContext context) async {
+    var image = await imagePicker.pickImage(
       source: source,
-      maxHeight: 480,
-      maxWidth: 480,
-      imageQuality: 60,
-      cameraIcon: Icon(
-        Icons.add,
-        color: Colors.red,
-      ), //cameraIcon and galleryIcon can change. If no icon provided default icon will be present
+      //cameraIcon and galleryIcon can change. If no icon provided default icon will be present
     );
     setState(() {
-      _image = File(image.path);
+      _image = File(image?.path ?? '');
       getCropImage(context);
     });
   }
+
+  // Future getImage(ImgSource source, BuildContext context) async {
+  //   var image = await ImagePickerGC.pickImage(
+  //     context: context,
+  //     source: source,
+  //     maxHeight: 480,
+  //     maxWidth: 480,
+  //     imageQuality: 60,
+  //     cameraIcon: Icon(
+  //       Icons.add,
+  //       color: Colors.red,
+  //     ), //cameraIcon and galleryIcon can change. If no icon provided default icon will be present
+  //   );
+  //   setState(() {
+  //     _image = File(image.path);
+  //     getCropImage(context);
+  //   });
+  // }
 
   void getCropImage(BuildContext context) async {
     File? croppedFile = await ImageCropper().cropImage(
